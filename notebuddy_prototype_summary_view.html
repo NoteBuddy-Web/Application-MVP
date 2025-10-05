@@ -1,0 +1,3466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Meeting Summaries</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode {
+            background-color: #ffffff;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #ffffff;
+            color: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .app-frame {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #ffffff;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        body.dark-mode .status-bar-placeholder {
+            background-color: #1c1c1e;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 44px;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 150;
+        }
+
+
+        body.dark-mode .header {
+            background-color: #1c1c1e;
+        }
+
+        .search-filter-bar {
+            position: absolute;
+            top: 88px;
+            left: 0;
+            right: 0;
+            z-index: 140;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 12px 16px 16px 16px;
+            gap: 12px;
+            height: 52px;
+        }
+
+
+        .header h1 {
+            font-size: 17px; 
+            font-weight: 600; 
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #1c1c1e;
+        }
+
+        body.dark-mode .header h1 {
+            color: #ffffff;
+        }
+        
+        .header .action-button-placeholder {
+            width: 60px;
+        }
+
+        .search-filter-bar {
+            position: absolute;
+            top: 88px;
+            left: 0;
+            right: 0;
+            z-index: 140;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 12px 16px 16px 16px;
+            gap: 12px;
+            height: 52px;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 12px 6px 36px;
+            border: 1px solid #e5e5e7;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #ffffff;
+            color: #000000;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .search-input {
+            border: 1px solid #48484a;
+            background-color: #2c2c2e;
+            color: #ffffff;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            color: #a1a1a6;
+        }
+
+        .filter-button {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(2, 160, 209, 0.3);
+        }
+
+        .filter-button svg {
+            fill: #ffffff;
+        }
+
+        .main-content {
+            padding-top: 144px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px;
+            position: relative;
+        }
+
+        body.dark-mode .main-content {
+            background-color: #1c1c1e;
+        }
+
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            opacity: 0.3;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            margin: 8px 12px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(2, 160, 209, 0.15);
+        }
+
+
+
+        .summary-card {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-color: rgba(2, 160, 209, 0.3);
+        }
+
+
+        body.dark-mode .summary-card {
+            background: #2c2c2e;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(2, 160, 209, 0.2);
+        }
+
+        body.dark-mode .summary-card:hover {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(2, 160, 209, 0.3);
+            transform: translateY(-8px) scale(1.02);
+        }
+
+
+        .summary-card:active {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Expanded Summary View Styles */
+        .expanded-summary-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .expanded-summary-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .expanded-summary-container {
+            background: #1c1c1e;
+            width: 375px;
+            height: 812px;
+            border-radius: 0;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border: 1px solid #ccc;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .expanded-summary-overlay.show .expanded-summary-container {
+            transform: scale(1);
+        }
+
+        .expanded-summary-header {
+            background: #2c2c2e;
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            min-height: 60px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .expanded-summary-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .expanded-summary-back-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            transition: all 0.2s ease;
+        }
+
+        .expanded-summary-back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+
+        .expanded-summary-back-btn:active {
+            transform: scale(0.95);
+        }
+
+        .expanded-summary-back-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .expanded-summary-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+            flex: 1;
+            letter-spacing: -0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .expanded-summary-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px;
+            background: #1c1c1e;
+        }
+
+        .expanded-summary-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            margin-bottom: 16px;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(2, 160, 209, 0.1);
+            position: relative;
+        }
+
+        body.dark-mode .expanded-summary-section {
+            background: linear-gradient(135deg, #3a3a3c 0%, #48484a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+
+        .expanded-summary-section h3 {
+            color: #02a0d1;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expanded-summary-section h3 svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .expanded-summary-section p {
+            color: #000000;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .expanded-summary-section ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .expanded-summary-section li {
+            color: #000000;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .expanded-summary-transcript {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #000000;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        body.dark-mode .expanded-summary-transcript {
+            background: #1c1c1e;
+        }
+
+        .expanded-summary-transcript .speaker {
+            font-weight: 600;
+            color: #02a0d1;
+        }
+
+        /* Mobile-first design - optimized for 375px width */
+
+        .more-actions-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .more-actions-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #000000;
+            fill: #000000;
+            transition: all 0.2s ease;
+        }
+
+        .more-actions-btn:hover svg {
+            fill: url(#threeDotsGradient);
+        }
+
+        body.dark-mode .more-actions-btn svg {
+            color: #ffffff;
+            fill: #ffffff;
+        }
+
+        body.dark-mode .more-actions-btn:hover svg {
+            fill: url(#threeDotsGradient);
+        }
+
+        .summary-title-section {
+            padding: 16px 16px 8px 16px;
+            background: transparent;
+            position: relative;
+        }
+
+        body.dark-mode .summary-title-section {
+            background: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+
+        .summary-title-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 0px 0;
+            padding: 3px 0;
+            color: #000000;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover .summary-title-section h3 {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.dark-mode .summary-title-section h3 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .summary-card:hover .summary-title-section h3 {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-date {
+            font-size: 10px;
+            color: #a1a1a6;
+            margin: 0;
+        }
+
+        body.dark-mode .summary-date {
+            color: #8e8e93;
+        }
+
+        .summary-content {
+            padding: 12px 16px 16px 16px;
+            background: #ffffff;
+            position: relative;
+        }
+
+        body.dark-mode .summary-content {
+            background: #2c2c2e;
+        }
+
+
+        .summary-section {
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .summary-section:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .summary-section h4 {
+            font-size: 9px;
+            font-weight: 600;
+            color: #000000;
+            margin: 0 0 4px 0;
+        }
+
+        body.dark-mode .summary-section h4 {
+            color: #ffffff;
+        }
+
+        .summary-section p {
+            font-size: 11px;
+            color: #000000;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        body.dark-mode .summary-section p {
+            color: #ffffff;
+        }
+
+        .summary-section ul {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .summary-section li {
+            font-size: 14px;
+            color: #000000;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        body.dark-mode .summary-section li {
+            color: #ffffff;
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a1a1a6;
+        }
+
+        .no-data-message h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+
+        .no-data-message p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #02a0d1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        .action-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .action-menu-popup {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e5e5e7;
+        }
+
+        body.dark-mode .action-menu-popup {
+            background: #2c2c2e;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid #3a3a3c;
+        }
+
+        .action-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .action-menu-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        body.dark-mode .action-menu-header h3 {
+            color: #ffffff;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            color: #000000;
+        }
+
+        body.dark-mode .close-btn {
+            color: #a1a1a6;
+        }
+
+        .action-menu-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-menu-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+        }
+
+        .action-menu-btn.primary {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        .action-menu-btn.secondary {
+            background: #f2f2f7;
+            color: #000000;
+            border: 1px solid #e5e5e7;
+        }
+
+        body.dark-mode .action-menu-btn.secondary {
+            background: #e5e5e7;
+            color: #ffffff;
+            border: 1px solid #3a3a3c;
+        }
+
+        .action-menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-menu-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px; /* iOS tab bar height with home indicator */
+            background-color: rgba(255, 255, 255, 0.94); /* Light translucent background */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start; /* Align items to top for icon + text */
+            padding-top: 6px; /* Padding for icons */
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        body.dark-mode .bottom-nav {
+            background-color: rgba(44, 44, 46, 0.94);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        body.dark-mode .nav-item {
+            color: #a1a1a6;
+        }
+
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        body.dark-mode .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-top: -20px; /* Pull it up slightly */
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+        .fab:active {
+            opacity: 0.8;
+        }
+
+        body.dark-mode .search-filter-bar {
+            background-color: #1c1c1e;
+            border-bottom: 1px solid #48484a;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Gradient Definition for Three Dots -->
+    <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+        <defs>
+            <linearGradient id="threeDotsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#02a0d1;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#dc3dcc;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+    </svg>
+    
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        
+        <div class="header">
+            <h1>Summaries</h1>
+            <div class="action-button-placeholder"></div>
+        </div>
+
+        <div class="search-filter-bar">
+            <div class="search-container">
+                <svg class="search-icon" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" id="summary-search-input" class="search-input" placeholder="Search summaries...">
+            </div>
+            <button class="filter-button square-filter-btn" onclick="alert('Open Filter Options - Mock.')" aria-label="Filter">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+            </button>
+        </div>
+
+        <div class="main-content" id="summary-list-container">
+            <!-- Summary cards will be dynamically loaded here -->
+            <div id="debug-indicator" style="position: fixed; top: 10px; right: 10px; background: #ff6b6b; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; z-index: 1000; display: none;">
+                DEBUG: Loading...
+            </div>
+        </div>
+
+
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </a>
+            <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Calendar
+            </a>
+            <div class="fab-container">
+                <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
+            </div>
+            <a href="notebuddy_prototype_summary_view.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Summaries
+            </a>
+            <a href="notebuddy_prototype_folder_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                </svg>
+                Folders
+            </a>
+        </nav>
+
+        <!-- Action Menu Overlay -->
+        <div id="action-menu-overlay" class="action-menu-overlay">
+            <div class="action-menu-popup">
+                <div class="action-menu-header">
+                    <h3>Summary Actions</h3>
+                    <button class="close-btn" onclick="hideActionMenu()">×</button>
+                </div>
+                <div class="action-menu-actions">
+                    <button class="action-menu-btn primary" onclick="shareSummary()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                        Share Summary
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="showFullTranscript()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                        View Transcript
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="relateToClient()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        Relate to Client
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="exportSummary()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Export PDF
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="deleteSummary()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                        Delete Summary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expanded Summary Overlay -->
+    <div id="expanded-summary-overlay" class="expanded-summary-overlay">
+        <div class="expanded-summary-container">
+                <div class="expanded-summary-header">
+                    <button class="expanded-summary-back-btn" onclick="closeExpandedSummary()" aria-label="Back">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                        </svg>
+                    </button>
+                    <h1 class="expanded-summary-title" id="expanded-summary-title">Meeting Summary</h1>
+                    <div style="width: 40px;"></div> <!-- Spacer for flex layout -->
+                </div>
+            <div class="expanded-summary-content" id="expanded-summary-content">
+                <!-- Content will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Initialization -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBeL0jxE1oBdDu9G8BqZge_reFV5GNfedk",
+            authDomain: "notebuddy-e5370.firebaseapp.com",
+            projectId: "notebuddy-e5370",
+            storageBucket: "notebuddy-e5370.firebasestorage.app",
+            messagingSenderId: "183381311494",
+            appId: "1:183381311494:web:f574fae1a5554186438387",
+            measurementId: "G-QBFNCSG9M5"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebase = { auth, db };
+        window.auth = auth;
+        
+        // Signal that Firebase is ready
+        window.firebaseReady = true;
+        window.dispatchEvent(new CustomEvent('firebaseReady'));
+    </script>
+    
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Authentication Check -->
+    <script src="auth-check.js"></script>
+    <script src="firebase-database.js"></script>
+    <script src="summary-data-model.js"></script>
+    <script>
+        // Cache for summaries to avoid repeated Firebase calls
+        let summariesCache = null;
+        let cacheTimestamp = null;
+        const CACHE_DURATION = 30000; // 30 seconds
+
+        // Load and display all summaries
+        async function loadLatestSummary() {
+            try {
+                // Show loading indicator immediately
+                const debugIndicator = document.getElementById('debug-indicator');
+                if (debugIndicator) {
+                    debugIndicator.style.display = 'block';
+                    debugIndicator.textContent = 'DEBUG: Loading summaries...';
+                }
+                
+                // Show loading state in the container
+                const container = document.getElementById('summary-list-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="display: flex; justify-content: center; align-items: center; height: 200px; color: #666;">
+                            <div style="text-align: center;">
+                                <div style="width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #02a0d1; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px;"></div>
+                                <div>Loading summaries...</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Initialize Firebase database (with timeout)
+                console.log('🔧 Initializing Firebase...');
+                const initPromise = window.firebaseDB.initialize();
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Firebase init timeout')), 3000)
+                );
+                
+                await Promise.race([initPromise, timeoutPromise]);
+                
+                // Check cache first
+                const now = Date.now();
+                if (summariesCache && cacheTimestamp && (now - cacheTimestamp) < CACHE_DURATION) {
+                    console.log('⚡ Using cached summaries (faster loading)');
+                    await displayAllSummaries(summariesCache);
+                    return;
+                }
+                
+                // Load all summaries from Firebase
+                console.log('📡 Loading summaries from Firebase...');
+                const currentUserId = window.firebaseDB.getCurrentUserId();
+                console.log('Current user ID for loading:', currentUserId);
+                console.log('User email from localStorage:', localStorage.getItem('userEmail'));
+                console.log('User session status:', sessionStorage.getItem('userAuthenticated'));
+                
+                const firebaseSummaries = await window.firebaseDB.getSummaries(10);
+                console.log('🔍 Firebase summaries loaded:', firebaseSummaries);
+                console.log('Number of Firebase summaries:', firebaseSummaries ? firebaseSummaries.length : 0);
+                console.log('Firebase summaries type:', typeof firebaseSummaries);
+                console.log('Firebase summaries is array:', Array.isArray(firebaseSummaries));
+                
+                // Always include mock data for presentation
+                const mockSummaries = [
+                    {
+                        title: "Q4 Product Strategy Meeting",
+                        date: "2024-01-15T10:00:00Z",
+                        duration: "45 minutes",
+                        participants: ["Sarah Johnson", "Mike Chen", "Alex Rodriguez", "Emma Wilson"],
+                        summary: "Discussed Q4 product roadmap, new feature priorities, and resource allocation. Key focus on mobile app improvements and AI integration.",
+                        keyPoints: [
+                            "Mobile app redesign scheduled for March",
+                            "AI-powered search feature in development",
+                            "User feedback analysis shows 85% satisfaction",
+                            "Budget approval for 3 new developers"
+                        ],
+                        actionItems: [
+                            "Sarah: Complete user research by Feb 1st",
+                            "Mike: Present technical feasibility report",
+                            "Alex: Schedule follow-up with design team",
+                            "Emma: Prepare budget breakdown for stakeholders"
+                        ],
+                        fullTranscript: "Sarah Johnson: Good morning everyone, thanks for joining our Q4 product strategy meeting..."
+                    },
+                    {
+                        title: "Client Onboarding Process Review",
+                        date: "2024-01-12T14:30:00Z",
+                        duration: "30 minutes",
+                        participants: ["David Kim", "Lisa Thompson", "James Park"],
+                        summary: "Reviewed current client onboarding process and identified bottlenecks. Discussed improvements to reduce time-to-value for new clients.",
+                        keyPoints: [
+                            "Current onboarding takes 2-3 weeks",
+                            "Main bottleneck is documentation review",
+                            "Proposed automated checklist system",
+                            "Client satisfaction scores need improvement"
+                        ],
+                        actionItems: [
+                            "David: Create automated workflow diagram",
+                            "Lisa: Research best practices from competitors",
+                            "James: Implement new client feedback system"
+                        ],
+                        fullTranscript: "David Kim: Let's start by reviewing our current onboarding metrics..."
+                    }
+                ];
+                
+                // Add source identifier to mock summaries
+                const mockSummariesWithSource = mockSummaries.map(summary => ({
+                    ...summary,
+                    source: 'mock'
+                }));
+                
+                // Combine Firebase summaries with mock data
+                let allSummaries = [];
+                
+                console.log('🔍 Checking Firebase summaries condition...');
+                console.log('firebaseSummaries exists:', !!firebaseSummaries);
+                console.log('firebaseSummaries length:', firebaseSummaries ? firebaseSummaries.length : 'N/A');
+                
+                if (firebaseSummaries && firebaseSummaries.length > 0) {
+                    console.log(`✅ Loaded ${firebaseSummaries.length} summaries from Firebase`);
+                    console.log('📋 Firebase summary titles:', firebaseSummaries.map(s => s.title));
+                    // Add source identifier to Firebase summaries
+                    const firebaseSummariesWithSource = firebaseSummaries.map(summary => ({
+                        ...summary,
+                        source: 'firebase'
+                    }));
+                    // Use only Firebase summaries (no mock data when user has real data)
+                    allSummaries = [...firebaseSummariesWithSource];
+                    console.log('📊 Using Firebase summaries only:', allSummaries.length);
+                } else {
+                    console.log('📭 No summaries found in Firebase, showing mock data for demonstration');
+                    console.log('📋 Mock summary titles:', mockSummariesWithSource.map(s => s.title));
+                    allSummaries = mockSummariesWithSource;
+                }
+                
+                // Sort all summaries by date (newest first)
+                allSummaries.sort((a, b) => {
+                    const dateA = new Date(a.date || a.createdAt || 0);
+                    const dateB = new Date(b.date || b.createdAt || 0);
+                    return dateB - dateA; // Newest first
+                });
+                
+                console.log(`📊 Total summaries to display: ${allSummaries.length}`);
+                console.log('🔍 Final combined summaries:', allSummaries.map(s => ({ title: s.title, date: s.date, source: s.source || 'unknown' })));
+                
+                // Update cache
+                summariesCache = allSummaries;
+                cacheTimestamp = Date.now();
+                
+                // Update debug indicator
+                if (debugIndicator) {
+                    debugIndicator.textContent = `DEBUG: Found ${allSummaries.length} summaries`;
+                }
+                
+                await displayAllSummaries(allSummaries);
+                
+                // Hide debug indicator after successful load
+                if (debugIndicator) {
+                    setTimeout(() => {
+                        debugIndicator.style.display = 'none';
+                    }, 2000);
+                }
+                return;
+            } catch (error) {
+                console.log('⚠️ Firebase error:', error.message);
+                
+                // Check if it's a permission error specifically
+                if (error.code === 'permission-denied') {
+                    console.log('🔒 Firebase permission denied - this is expected for demo purposes');
+                    console.log('💡 To fix: Configure Firebase security rules to allow read access');
+                } else {
+                    console.log('❌ Other Firebase error:', error);
+                }
+                
+                // Show mock data as fallback
+                await showMockDataFallback();
+                return;
+            }
+            
+            // Fallback to localStorage if Firebase fails
+            const summaryData = localStorage.getItem('latest_summary');
+            if (summaryData) {
+                try {
+                    const data = JSON.parse(summaryData);
+                    await displayAllSummaries([data]);
+                } catch (error) {
+                    console.error('Error parsing summary data:', error);
+                    showNoDataMessage();
+                }
+            } else {
+                showNoDataMessage();
+            }
+        }
+
+        async function displayAllSummaries(summaries) {
+            const container = document.getElementById('summary-list-container');
+            
+            // Clear existing content
+            container.innerHTML = '';
+            
+            if (summaries.length === 0) {
+                showNoDataMessage();
+                return;
+            }
+            
+            // Create summary cards for each summary
+            // Create summary cards with speaker mappings
+            const cardPromises = summaries.map(async (summary, index) => {
+                const summaryCard = await createSummaryCard(summary, index);
+                return summaryCard;
+            });
+            
+            const summaryCards = await Promise.all(cardPromises);
+            summaryCards.forEach(card => {
+                container.appendChild(card);
+            });
+        }
+
+        async function createSummaryCard(data, index) {
+            // Parse and display structured summary data
+            let participants = 'Meeting participants';
+            let keyPoints = [];
+            let actionItems = [];
+            let title = 'Latest Meeting';
+            let date = new Date().toLocaleString();
+            let summaryText = 'Meeting summary will be available when you expand this card.';
+            
+            // Handle Firebase data format (already structured)
+            if (data.participants && Array.isArray(data.participants)) {
+                participants = data.participants.join(', ');
+                keyPoints = data.keyPoints || [];
+                // Filter and limit action items - only include items with actual content
+                actionItems = (data.actionItems && Array.isArray(data.actionItems)) 
+                    ? data.actionItems.filter(item => {
+                        if (typeof item === 'object' && item.task) {
+                            return item.task.trim().length > 0;
+                        } else if (typeof item === 'string') {
+                            return item.trim().length > 0;
+                        }
+                        return false;
+                    }).slice(0, 3) 
+                    : []; // Limit to 3 action items
+                title = data.title || 'Latest Meeting';
+                summaryText = data.summary || 'Meeting summary will be available when you expand this card.';
+                // Use the date from data, or fall back to createdAt, or current date
+                if (data.date) {
+                    date = new Date(data.date).toLocaleString();
+                } else if (data.createdAt) {
+                    date = new Date(data.createdAt).toLocaleString();
+                } else {
+                    date = new Date().toLocaleString();
+                }
+            } else if (data.summary && typeof data.summary === 'object') {
+                // Legacy structured format
+                participants = data.summary.participants ? data.summary.participants.join(', ') : 'Meeting participants';
+                keyPoints = data.summary.keyPoints || [];
+                // Filter and limit action items - only include items with actual content
+                actionItems = (data.summary.actionItems && Array.isArray(data.summary.actionItems)) 
+                    ? data.summary.actionItems.filter(item => {
+                        if (typeof item === 'object' && item.task) {
+                            return item.task.trim().length > 0;
+                        } else if (typeof item === 'string') {
+                            return item.trim().length > 0;
+                        }
+                        return false;
+                    }).slice(0, 3) 
+                    : []; // Limit to 3 action items
+                summaryText = data.summary.summary || 'Meeting summary will be available when you expand this card.';
+            } else if (data.summary && typeof data.summary === 'string') {
+                // Parse text format
+                summaryText = data.summary;
+                
+                // Extract action items from summary text
+                const actionSection = summaryText.match(/Action Items?:([\s\S]*)/i);
+                if (actionSection) {
+                    actionItems = actionSection[1].split('\n')
+                        .map(item => item.trim())
+                        .filter(item => item.length > 0 && item.startsWith('-'))
+                        .map(item => item.substring(1).trim());
+                }
+                
+                // Extract key points (simplified)
+                keyPoints = ["Key discussion points from the meeting"];
+            }
+
+            // Create the summary card HTML
+            const summaryCard = document.createElement('div');
+            summaryCard.className = 'summary-card';
+            summaryCard.id = index === 0 ? 'latest-summary-card' : `summary-card-${index}`;
+            summaryCard.setAttribute('data-title', title);
+            
+            // Store summary ID for speaker mapping
+            if (data.id) {
+                summaryCard.setAttribute('data-summary-id', data.id);
+            }
+            
+            // Store full transcript data if available
+            let transcript = data.transcript || data.fullTranscript || '';
+            if (transcript && data.id) {
+                // Load speaker mappings and apply them to the transcript
+                try {
+                    const speakerMappings = await getSpeakerMappings(data.id);
+                    if (Object.keys(speakerMappings).length > 0) {
+                        transcript = applySpeakerMappings(transcript, speakerMappings);
+                        console.log('Applied speaker mappings to summary card:', speakerMappings);
+                    }
+                } catch (error) {
+                    console.error('Error loading speaker mappings for summary card:', error);
+                    // Continue without speaker mappings if there's an error
+                }
+                summaryCard.setAttribute('data-transcript', transcript);
+            } else if (transcript) {
+                summaryCard.setAttribute('data-transcript', transcript);
+            }
+
+            summaryCard.innerHTML = `
+                <button class="more-actions-btn" aria-label="More Actions" title="More Actions" onclick="event.stopPropagation(); showMoreActions(this.closest('.summary-card'));">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                </button>
+                
+                <div class="summary-title-section">
+                    <h3 id="summary-title">${title}</h3>
+                    <p class="summary-date" id="summary-date">${date}</p>
+                </div>
+                
+                <div class="summary-content">
+                    <div class="summary-section">
+                        <h4>Participants</h4>
+                        <p id="summary-participants">${participants}</p>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h4>Summary</h4>
+                        <p>${summaryText}</p>
+                    </div>
+                </div>
+            `;
+
+            // Add click event listener to expand the summary
+            summaryCard.addEventListener('click', function(e) {
+                // Don't expand if clicking on the more actions button
+                if (e.target.closest('.more-actions-btn')) {
+                    return;
+                }
+                expandSummaryCard(data, index);
+            });
+
+            return summaryCard;
+        }
+
+        function showNoDataMessage() {
+            const container = document.getElementById('summary-list-container');
+            container.innerHTML = `
+                <div class="no-data-message">
+                    <h3>No Summaries Yet</h3>
+                    <p>Upload or record audio to see your meeting summaries here.</p>
+                </div>
+            `;
+        }
+
+        function showMoreActions(summaryCard) {
+            // Store reference to the clicked summary card
+            window.currentSummaryCard = summaryCard;
+            document.getElementById('action-menu-overlay').style.display = 'flex';
+        }
+
+        function hideActionMenu() {
+            document.getElementById('action-menu-overlay').style.display = 'none';
+        }
+
+        function expandSummaryCard(data, index) {
+            console.log('Expanding summary card:', data);
+            
+            // Parse the summary data
+            let participants = 'Meeting participants';
+            let keyPoints = [];
+            let actionItems = [];
+            let title = 'Latest Meeting';
+            let date = new Date().toLocaleString();
+            let summaryText = 'Meeting summary will be available when you expand this card.';
+            let transcript = '';
+
+            // Handle Firebase data format (already structured)
+            if (data.participants && Array.isArray(data.participants)) {
+                participants = data.participants.join(', ');
+                keyPoints = data.keyPoints || [];
+                actionItems = (data.actionItems && Array.isArray(data.actionItems)) 
+                    ? data.actionItems.filter(item => {
+                        if (typeof item === 'object' && item.task) {
+                            return item.task.trim().length > 0;
+                        } else if (typeof item === 'string') {
+                            return item.trim().length > 0;
+                        }
+                        return false;
+                    })
+                    : [];
+                title = data.title || 'Latest Meeting';
+                summaryText = data.summary || 'Meeting summary will be available when you expand this card.';
+                transcript = data.transcript || data.fullTranscript || '';
+                
+                if (data.date) {
+                    date = new Date(data.date).toLocaleString();
+                } else if (data.createdAt) {
+                    date = new Date(data.createdAt).toLocaleString();
+                }
+            } else if (data.summary && typeof data.summary === 'object') {
+                // Legacy structured format
+                participants = data.summary.participants ? data.summary.participants.join(', ') : 'Meeting participants';
+                keyPoints = data.summary.keyPoints || [];
+                actionItems = (data.summary.actionItems && Array.isArray(data.summary.actionItems)) 
+                    ? data.summary.actionItems.filter(item => {
+                        if (typeof item === 'object' && item.task) {
+                            return item.task.trim().length > 0;
+                        } else if (typeof item === 'string') {
+                            return item.trim().length > 0;
+                        }
+                        return false;
+                    })
+                    : [];
+                summaryText = data.summary.summary || 'Meeting summary will be available when you expand this card.';
+                transcript = data.transcript || data.fullTranscript || '';
+            } else if (data.summary && typeof data.summary === 'string') {
+                // Parse text format
+                summaryText = data.summary;
+                transcript = data.transcript || data.fullTranscript || '';
+                
+                // Extract action items from summary text
+                const actionSection = summaryText.match(/Action Items?:([\s\S]*)/i);
+                if (actionSection) {
+                    actionItems = actionSection[1].split('\n')
+                        .map(item => item.trim())
+                        .filter(item => item.length > 0 && item.startsWith('-'))
+                        .map(item => item.substring(1).trim());
+                }
+                
+                // Extract key points (simplified)
+                keyPoints = ["Key discussion points from the meeting"];
+            }
+
+            // Update the expanded view title
+            document.getElementById('expanded-summary-title').textContent = title;
+
+            // Build the expanded content
+            const content = document.getElementById('expanded-summary-content');
+            content.innerHTML = `
+                <div class="expanded-summary-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        Meeting Details
+                    </h3>
+                    <p><strong>Date:</strong> ${date}</p>
+                    <p><strong>Participants:</strong> ${participants}</p>
+                </div>
+
+                <div class="expanded-summary-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                        Summary
+                    </h3>
+                    <p>${summaryText}</p>
+                </div>
+
+                ${keyPoints.length > 0 ? `
+                <div class="expanded-summary-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-9H19V1h-2v1H7V1H5v1H4.5C3.67 2 3 2.67 3 3.5v15C3 19.33 3.67 20 4.5 20h15c.83 0 1.5-.67 1.5-1.5v-15C21 2.67 20.33 2 19.5 2z"/>
+                        </svg>
+                        Key Points
+                    </h3>
+                    <ul>
+                        ${keyPoints.map(point => `<li>${point}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+
+                ${actionItems.length > 0 ? `
+                <div class="expanded-summary-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                        </svg>
+                        Action Items
+                    </h3>
+                    <ul>
+                        ${actionItems.map(item => `<li>${typeof item === 'object' ? item.task : item}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+
+                ${transcript ? `
+                <div class="expanded-summary-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                        </svg>
+                        Full Transcript
+                    </h3>
+                    <div class="expanded-summary-transcript">${transcript}</div>
+                </div>
+                ` : ''}
+            `;
+
+            // Show the expanded view
+            const overlay = document.getElementById('expanded-summary-overlay');
+            overlay.classList.add('show');
+        }
+
+        function closeExpandedSummary() {
+            const overlay = document.getElementById('expanded-summary-overlay');
+            overlay.classList.remove('show');
+            
+            // Clear content after animation
+            setTimeout(() => {
+                if (!overlay.classList.contains('show')) {
+                    document.getElementById('expanded-summary-content').innerHTML = '';
+                }
+            }, 300);
+        }
+
+        function shareSummary() {
+            // Get summary data from the current card
+            const summaryCard = window.currentSummaryCard;
+            if (!summaryCard) return;
+
+            const title = summaryCard.querySelector('h3').textContent;
+            const participants = summaryCard.querySelector('#summary-participants').textContent;
+            const keyPoints = Array.from(summaryCard.querySelectorAll('#summary-key-points li')).map(li => li.textContent);
+            const actionItems = Array.from(summaryCard.querySelectorAll('#summary-action-items li')).map(li => li.textContent);
+
+            const shareTitle = `Meeting Summary: ${title}`;
+            const shareText = `
+Participants: ${participants}
+
+Key Points:
+${keyPoints.map(point => `• ${point}`).join('\n')}
+
+Action Items:
+${actionItems.map(item => `• ${item}`).join('\n')}
+            `.trim();
+
+            // Check if Web Share API is supported
+            if (navigator.share) {
+                navigator.share({
+                    title: shareTitle,
+                    text: shareText
+                }).catch(error => {
+                    console.log('Error sharing:', error);
+                    showShareOptions(shareTitle, shareText);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                showShareOptions(shareTitle, shareText);
+            }
+        }
+
+        function showShareOptions(title, text) {
+            // Create share options popup with NoteBuddy aesthetic
+            const shareOverlay = document.createElement('div');
+            shareOverlay.className = 'action-menu-overlay';
+            shareOverlay.style.zIndex = '2000';
+            shareOverlay.style.background = 'rgba(0, 0, 0, 0.6)';
+            shareOverlay.style.backdropFilter = 'blur(10px)';
+            
+            const sharePopup = document.createElement('div');
+            sharePopup.className = 'action-menu-popup';
+            sharePopup.style.cssText = `
+                width: 340px;
+                max-width: 90vw;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                overflow: hidden;
+            `;
+            
+            sharePopup.innerHTML = `
+                <div class="action-menu-header" style="
+                    background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    position: relative;
+                ">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Share Summary</h3>
+                    <button class="close-btn" onclick="this.closest('.action-menu-overlay').remove()" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: rgba(255, 255, 255, 0.2);
+                        border: none;
+                        border-radius: 50%;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: background 0.2s ease;
+                    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="action-menu-actions" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                    <button class="action-menu-btn primary" onclick="shareViaGmail('${title.replace(/'/g, "\\'")}', '${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 4px 12px rgba(2, 160, 209, 0.3);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(2, 160, 209, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(2, 160, 209, 0.3)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        Share via Gmail
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="shareViaMessages('${title.replace(/'/g, "\\'")}', '${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: #f8f9fa;
+                        color: #02a0d1;
+                        border: 2px solid #e9ecef;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#e9ecef'; this.style.borderColor='#02a0d1'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f8f9fa'; this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                        </svg>
+                        Share via Messages
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="copyToClipboard('${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: #f8f9fa;
+                        color: #02a0d1;
+                        border: 2px solid #e9ecef;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#e9ecef'; this.style.borderColor='#02a0d1'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f8f9fa'; this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                        Copy to Clipboard
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="shareViaAirDrop('${title.replace(/'/g, "\\'")}', '${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: #f8f9fa;
+                        color: #02a0d1;
+                        border: 2px solid #e9ecef;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#e9ecef'; this.style.borderColor='#02a0d1'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f8f9fa'; this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        Share via AirDrop
+                    </button>
+                </div>
+            `;
+            
+            shareOverlay.appendChild(sharePopup);
+            document.body.appendChild(shareOverlay);
+            
+            // Close on overlay click
+            shareOverlay.addEventListener('click', (e) => {
+                if (e.target === shareOverlay) {
+                    shareOverlay.remove();
+                }
+            });
+        }
+
+        function shareViaGmail(title, text) {
+            const subject = encodeURIComponent(title);
+            const body = encodeURIComponent(text);
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`;
+            window.open(gmailUrl, '_blank');
+        }
+
+        function shareViaMessages(title, text) {
+            const body = encodeURIComponent(`${title}\n\n${text}`);
+            const messagesUrl = `sms:?body=${body}`;
+            window.open(messagesUrl);
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Summary copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                fallbackCopyToClipboard(text);
+            }
+        }
+
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Summary copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy to clipboard');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function shareViaAirDrop(title, text) {
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text
+                });
+            } else {
+                copyToClipboard(text);
+            }
+        }
+
+        function formatTranscript(transcript) {
+            if (!transcript) return 'No transcript available';
+            
+            console.log('formatTranscript called with:', transcript);
+            console.log('Contains colon:', transcript.includes(':'));
+            console.log('Contains Participant:', transcript.includes('Participant'));
+            console.log('Contains Speaker:', transcript.includes('Speaker'));
+            
+            // Check if transcript already has speaker formatting
+            if (transcript.includes(':') && (transcript.includes('Participant') || transcript.includes('Speaker'))) {
+                console.log('Using speaker-formatted transcript');
+                // Format with speaker separation
+                return transcript.split('\n').map(line => {
+                    if (line.includes(':')) {
+                        const [speaker, ...content] = line.split(':');
+                        const speakerName = speaker.trim();
+                        const message = content.join(':').trim();
+                        
+                        // Style speaker names as clickable
+                        return `<div style="margin-bottom: 8px;">
+                            <strong style="color: #007AFF; font-weight: 600; cursor: pointer; text-decoration: underline;" 
+                                    onclick="editSpeakerName('${speakerName}', this)" 
+                                    title="Click to edit speaker name">${speakerName}:</strong>
+                            <span style="margin-left: 8px;">${message}</span>
+                        </div>`;
+                    } else {
+                        return `<div style="margin-bottom: 4px;">${line}</div>`;
+                    }
+                }).join('');
+            } else {
+                console.log('Using fallback formatting - attempting to detect speakers');
+                return detectAndFormatSpeakers(transcript);
+            }
+        }
+
+        function detectAndFormatSpeakers(transcript) {
+            // Split transcript into sentences and analyze patterns
+            const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            let currentSpeaker = 1;
+            let speakerCount = 1;
+            const speakerMap = new Map();
+            const result = [];
+            
+            // Always start with Speaker 1 for the first sentence
+            if (sentences.length > 0) {
+                const firstSentence = sentences[0].trim();
+                if (firstSentence) {
+                    result.push(`<div style="margin-bottom: 8px;">
+                        <strong style="color: #007AFF; font-weight: 600;">Speaker 1:</strong>
+                        <span style="margin-left: 8px;">${firstSentence}</span>
+                    </div>`);
+                }
+            }
+            
+            // Patterns that indicate speaker changes
+            const speakerChangePatterns = [
+                // Greetings and responses
+                /^(hi|hello|hey|good morning|good afternoon|good evening|good night)/i,
+                /^(thanks|thank you|you're welcome|no problem)/i,
+                /^(okay|ok|alright|right|sure|yes|no|absolutely|definitely)/i,
+                
+                // Conversation starters
+                /^(so|well|now|next|first|second|third|finally|lastly)/i,
+                /^(let me|let's|i think|i believe|i feel|i suggest|i recommend)/i,
+                /^(we need|we should|we can|we will|we have|we must)/i,
+                
+                // Questions and responses
+                /^(what|how|when|where|why|who|which|can you|could you)/i,
+                /^(that's|this is|here's|there's|i'm|i'll|i've|i'd)/i,
+                
+                // Agreement/disagreement
+                /^(i agree|i disagree|exactly|precisely|absolutely not)/i,
+                /^(that makes sense|that's right|that's correct)/i,
+                
+                // Transitions
+                /^(moving on|speaking of|by the way|also|additionally)/i,
+                /^(in conclusion|to summarize|to wrap up)/i
+            ];
+            
+            // Analyze each sentence starting from the second one
+            for (let i = 1; i < sentences.length; i++) {
+                const sentence = sentences[i].trim();
+                if (!sentence) continue;
+                
+                // Check if this sentence indicates a speaker change
+                const isSpeakerChange = speakerChangePatterns.some(pattern => pattern.test(sentence));
+                
+                // Additional logic: if sentence is very different in style/length from previous, likely new speaker
+                const prevSentence = i > 0 ? sentences[i-1].trim() : '';
+                const isDifferentStyle = prevSentence && (
+                    Math.abs(sentence.length - prevSentence.length) > 50 || // Very different length
+                    (sentence.length < 20 && prevSentence.length > 50) || // Short after long
+                    (sentence.length > 50 && prevSentence.length < 20)    // Long after short
+                );
+                
+                // Check for question-answer patterns
+                const isQuestion = /[?]$/.test(sentence);
+                const prevWasQuestion = i > 0 && /[?]$/.test(prevSentence);
+                const isAnswer = isQuestion && prevWasQuestion;
+                
+                // Determine if this should be a new speaker
+                if (isSpeakerChange || isDifferentStyle || (isQuestion && !prevWasQuestion)) {
+                    // Check if we've seen this pattern before
+                    const sentenceKey = sentence.toLowerCase().substring(0, 30);
+                    if (!speakerMap.has(sentenceKey)) {
+                        speakerCount++;
+                        speakerMap.set(sentenceKey, speakerCount);
+                        currentSpeaker = speakerCount;
+                    } else {
+                        currentSpeaker = speakerMap.get(sentenceKey);
+                    }
+                }
+                
+                // Limit to 5 speakers max
+                if (currentSpeaker > 5) currentSpeaker = 5;
+                
+                // Format the sentence with speaker
+                const speakerName = `Speaker ${currentSpeaker}`;
+                result.push(`<div style="margin-bottom: 8px;">
+                    <strong style="color: #007AFF; font-weight: 600; cursor: pointer; text-decoration: underline;" 
+                            onclick="editSpeakerName('${speakerName}', this)" 
+                            title="Click to edit speaker name">${speakerName}:</strong>
+                    <span style="margin-left: 8px;">${sentence}</span>
+                </div>`);
+            }
+            
+            return result.join('');
+        }
+
+        async function showFullTranscript() {
+            const summaryCard = window.currentSummaryCard;
+            if (!summaryCard) return;
+
+            const transcript = summaryCard.getAttribute('data-transcript');
+            const title = summaryCard.getAttribute('data-title');
+            const summaryId = summaryCard.getAttribute('data-summary-id');
+            
+            if (!transcript) {
+                alert('No transcript available for this meeting.');
+                return;
+            }
+            
+            // Load speaker mappings for this summary
+            const speakerMappings = summaryId ? await getSpeakerMappings(summaryId) : {};
+            console.log('Loaded speaker mappings:', speakerMappings);
+            
+            // Refresh the transcript with latest mappings if available
+            if (summaryId && Object.keys(speakerMappings).length > 0) {
+                await refreshTranscriptWithLatestMappings(summaryId);
+                // Get the updated transcript
+                const updatedTranscript = summaryCard.getAttribute('data-transcript');
+                if (updatedTranscript) {
+                    transcript = updatedTranscript;
+                }
+            }
+            
+            // Create a modal-like display
+            const modal = document.createElement('div');
+            modal.id = 'transcript-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: #2c2c2e;
+                    border-radius: 12px;
+                    max-width: 600px;
+                    max-height: 80vh;
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                ">
+                    <div style="
+                        background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+                        color: white;
+                        padding: 16px 20px;
+                        border-radius: 12px 12px 0 0;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    ">
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Full Transcript - ${title}</h3>
+                        <button onclick="closeTranscriptModal()" style="
+                            background: rgba(255, 255, 255, 0.2);
+                            border: none;
+                            border-radius: 50%;
+                            width: 28px;
+                            height: 28px;
+                            color: white;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                        ">×</button>
+                    </div>
+                    <div style="
+                        flex: 1;
+                        overflow-y: auto;
+                        padding: 16px;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        font-size: 13px;
+                        line-height: 1.6;
+                        color: #ffffff;
+                    ">
+                        ${formatTranscript(applySpeakerMappings(transcript, speakerMappings))}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function closeTranscriptModal() {
+            const modal = document.getElementById('transcript-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function editSpeakerName(currentName, element) {
+            console.log('editSpeakerName called with:', currentName, element);
+            const newName = prompt(`Edit speaker name for "${currentName}":`, currentName);
+            if (newName !== null) { // User clicked OK (even if same name)
+                const trimmedNewName = newName.trim();
+                
+                if (trimmedNewName && trimmedNewName !== currentName) {
+                    console.log('Updating speaker name from', currentName, 'to', trimmedNewName);
+                    
+                    // Immediately update the clicked element
+                    element.textContent = trimmedNewName + ':';
+                    element.setAttribute('onclick', `editSpeakerName('${trimmedNewName}', this)`);
+                    
+                    // Get the summary ID from the current card
+                    const summaryCard = element.closest('.summary-card');
+                    const summaryId = summaryCard ? summaryCard.getAttribute('data-summary-id') : null;
+                    
+                    console.log('Summary ID:', summaryId);
+                    
+                    if (summaryId) {
+                        // Save to Firestore first
+                        saveSpeakerMapping(summaryId, currentName, trimmedNewName).then(() => {
+                            console.log('Speaker mapping saved, updating display...');
+                            // Update all instances of this speaker in the current transcript display
+                            updateAllSpeakerInstances(currentName, trimmedNewName, summaryCard);
+                            
+                            // Update the transcript data attribute for future displays
+                            updateTranscriptData(summaryId, currentName, trimmedNewName);
+                        }).catch(error => {
+                            console.error('Error saving speaker mapping:', error);
+                            // Still update the display even if database save fails
+                            updateAllSpeakerInstances(currentName, trimmedNewName, summaryCard);
+                        });
+            } else {
+                        console.log('No summary ID, updating display only...');
+                        // Fallback: just update the display if no summary ID
+                        updateAllSpeakerInstances(currentName, trimmedNewName, element.closest('.summary-card'));
+                    }
+                } else if (trimmedNewName === currentName) {
+                    console.log('Speaker name unchanged');
+                } else {
+                    console.log('Empty speaker name provided');
+                }
+            } else {
+                console.log('User cancelled speaker name edit');
+            }
+        }
+
+        async function saveSpeakerMapping(summaryId, oldName, newName) {
+            try {
+                console.log('saveSpeakerMapping called with:', { summaryId, oldName, newName });
+                const db = firebase.firestore();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('Current user ID:', userId);
+                
+                if (!userId) {
+                    console.error('No user ID available for saving speaker mapping');
+                    return false;
+                }
+                
+                // Check if mapping already exists
+                const existingMapping = await db.collection('speaker_mappings')
+                    .where('userId', '==', userId)
+                    .where('summaryId', '==', summaryId)
+                    .where('oldName', '==', oldName)
+                    .get();
+                
+                if (!existingMapping.empty) {
+                    // Update existing mapping
+                    const doc = existingMapping.docs[0];
+                    await doc.ref.update({
+                        newName: newName,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log('Speaker mapping updated:', { summaryId, oldName, newName });
+                } else {
+                    // Create new mapping
+                    await db.collection('speaker_mappings').add({
+                        userId: userId,
+                        summaryId: summaryId,
+                        oldName: oldName,
+                        newName: newName,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log('Speaker mapping created:', { summaryId, oldName, newName });
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error saving speaker mapping:', error);
+                return false;
+            }
+        }
+
+        async function getSpeakerMappings(summaryId) {
+            try {
+                console.log('getSpeakerMappings called with summaryId:', summaryId);
+                const db = firebase.firestore();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('Current user ID for getting mappings:', userId);
+                
+                if (!userId) {
+                    console.error('No user ID available for getting speaker mappings');
+                    return {};
+                }
+                
+                const snapshot = await db.collection('speaker_mappings')
+                    .where('userId', '==', userId)
+                    .where('summaryId', '==', summaryId)
+                    .get();
+                
+                const mappings = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    mappings[data.oldName] = data.newName;
+                });
+                
+                console.log('Found speaker mappings:', mappings);
+                console.log('Number of mappings found:', Object.keys(mappings).length);
+                return mappings;
+            } catch (error) {
+                console.error('Error getting speaker mappings:', error);
+                return {};
+            }
+        }
+
+        function updateAllSpeakerInstances(oldName, newName, summaryCard) {
+            console.log('updateAllSpeakerInstances called:', oldName, '->', newName);
+            
+            // Find all speaker elements in the current transcript display
+            // Check both the summary card and any open transcript modal
+            const transcriptContainers = [
+                summaryCard.querySelector('[style*="font-family: -apple-system"]'),
+                document.querySelector('div[style*="position: fixed"] [style*="font-family: -apple-system"]')
+            ].filter(Boolean);
+            
+            console.log('Found transcript containers:', transcriptContainers.length);
+            
+            transcriptContainers.forEach((transcriptContainer, index) => {
+                console.log(`Processing container ${index}:`, transcriptContainer);
+                
+                // Look for all strong elements that have onclick attributes
+                const speakerElements = transcriptContainer.querySelectorAll('strong[onclick]');
+                console.log(`Found ${speakerElements.length} speaker elements in container ${index}`);
+                
+                speakerElements.forEach((element, elementIndex) => {
+                    const currentText = element.textContent.trim();
+                    console.log(`Element ${elementIndex}: "${currentText}"`);
+                    
+                    if (currentText === oldName + ':') {
+                        console.log(`Updating element ${elementIndex} from "${currentText}" to "${newName}:"`);
+                        element.textContent = newName + ':';
+                        // Update the onclick attribute to use the new name
+                        element.setAttribute('onclick', `editSpeakerName('${newName}', this)`);
+                    }
+                });
+            });
+        }
+
+        function updateTranscriptData(summaryId, oldName, newName) {
+            // Update the transcript data attribute to reflect the new speaker name
+            const summaryCard = document.querySelector(`[data-summary-id="${summaryId}"]`);
+            if (summaryCard) {
+                const currentTranscript = summaryCard.getAttribute('data-transcript');
+                if (currentTranscript) {
+                    // Replace all instances of the old speaker name with the new one
+                    const updatedTranscript = currentTranscript.replace(
+                        new RegExp(`\\b${oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'),
+                        newName
+                    );
+                    summaryCard.setAttribute('data-transcript', updatedTranscript);
+                }
+            }
+        }
+
+        async function refreshTranscriptWithLatestMappings(summaryId) {
+            try {
+                const speakerMappings = await getSpeakerMappings(summaryId);
+                const summaryCard = document.querySelector(`[data-summary-id="${summaryId}"]`);
+                
+                if (summaryCard && Object.keys(speakerMappings).length > 0) {
+                    const currentTranscript = summaryCard.getAttribute('data-transcript');
+                    if (currentTranscript) {
+                        // Get the original transcript (without mappings applied)
+                        // For now, we'll work with the current transcript
+                        const updatedTranscript = applySpeakerMappings(currentTranscript, speakerMappings);
+                        summaryCard.setAttribute('data-transcript', updatedTranscript);
+                        console.log('Refreshed transcript with latest speaker mappings:', speakerMappings);
+                    }
+                }
+            } catch (error) {
+                console.error('Error refreshing transcript with latest mappings:', error);
+            }
+        }
+
+        // Test function to verify Firebase connection
+        async function testFirebaseConnection() {
+            try {
+                console.log('Testing Firebase connection...');
+                const db = firebase.firestore();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('User ID for test:', userId);
+                
+                if (!userId) {
+                    console.error('No user ID - Firebase connection test failed');
+                    return false;
+                }
+                
+                // Try to read from a test collection
+                const testSnapshot = await db.collection('speaker_mappings')
+                    .where('userId', '==', userId)
+                    .limit(1)
+                    .get();
+                
+                console.log('Firebase connection test successful');
+                console.log('Test query returned:', testSnapshot.size, 'documents');
+                return true;
+            } catch (error) {
+                console.error('Firebase connection test failed:', error);
+                return false;
+            }
+        }
+
+        // Test function to check Firebase summaries
+        async function testFirebaseSummaries() {
+            try {
+                console.log('🧪 Testing Firebase summaries...');
+                await window.firebaseDB.initialize();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('🧪 User ID:', userId);
+                
+                if (!userId) {
+                    console.error('🧪 No user ID available');
+                    return;
+                }
+                
+                const summaries = await window.firebaseDB.getSummaries(10);
+                console.log('🧪 Firebase summaries result:', summaries);
+                console.log('🧪 Number of summaries:', summaries ? summaries.length : 0);
+                
+                if (summaries && summaries.length > 0) {
+                    console.log('🧪 Summary titles:', summaries.map(s => s.title));
+                } else {
+                    console.log('🧪 No summaries found in Firebase');
+                }
+                
+                return summaries;
+            } catch (error) {
+                console.error('🧪 Error testing Firebase summaries:', error);
+                return null;
+            }
+        }
+
+        function applySpeakerMappings(transcript, mappings) {
+            if (!mappings || Object.keys(mappings).length === 0) {
+                return transcript;
+            }
+            
+            let updatedTranscript = transcript;
+            Object.entries(mappings).forEach(([oldName, newName]) => {
+                // Replace speaker names in the transcript
+                const regex = new RegExp(`\\b${oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+                updatedTranscript = updatedTranscript.replace(regex, newName);
+            });
+            
+            return updatedTranscript;
+        }
+
+        function formatTranscriptForExport(transcript) {
+            if (!transcript) return 'No transcript available';
+            
+            // Check if transcript already has speaker formatting
+            if (transcript.includes(':') && (transcript.includes('Speaker') || transcript.includes('Participant'))) {
+                // Convert HTML formatted transcript to plain text for export
+                return transcript
+                    .replace(/<div[^>]*>/g, '')
+                    .replace(/<\/div>/g, '\n')
+                    .replace(/<strong[^>]*>/g, '')
+                    .replace(/<\/strong>/g, '')
+                    .replace(/<span[^>]*>/g, '')
+                    .replace(/<\/span>/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            } else {
+                // Use the same speaker detection logic but return plain text
+                const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                let currentSpeaker = 1;
+                let speakerCount = 1;
+                const speakerMap = new Map();
+                const result = [];
+                
+                // Always start with Speaker 1 for the first sentence
+                if (sentences.length > 0) {
+                    const firstSentence = sentences[0].trim();
+                    if (firstSentence) {
+                        result.push(`Speaker 1: ${firstSentence}`);
+                    }
+                }
+                
+                // Use the same speaker detection patterns
+                const speakerChangePatterns = [
+                    /^(hi|hello|hey|good morning|good afternoon|good evening|good night)/i,
+                    /^(thanks|thank you|you're welcome|no problem)/i,
+                    /^(okay|ok|alright|right|sure|yes|no|absolutely|definitely)/i,
+                    /^(so|well|now|next|first|second|third|finally|lastly)/i,
+                    /^(let me|let's|i think|i believe|i feel|i suggest|i recommend)/i,
+                    /^(we need|we should|we can|we will|we have|we must)/i,
+                    /^(what|how|when|where|why|who|which|can you|could you)/i,
+                    /^(that's|this is|here's|there's|i'm|i'll|i've|i'd)/i,
+                    /^(i agree|i disagree|exactly|precisely|absolutely not)/i,
+                    /^(that makes sense|that's right|that's correct)/i,
+                    /^(moving on|speaking of|by the way|also|additionally)/i,
+                    /^(in conclusion|to summarize|to wrap up)/i
+                ];
+                
+                // Analyze each sentence starting from the second one
+                for (let i = 1; i < sentences.length; i++) {
+                    const sentence = sentences[i].trim();
+                    if (!sentence) continue;
+                    
+                    const isSpeakerChange = speakerChangePatterns.some(pattern => pattern.test(sentence));
+                    const prevSentence = i > 0 ? sentences[i-1].trim() : '';
+                    const isDifferentStyle = prevSentence && (
+                        Math.abs(sentence.length - prevSentence.length) > 50 ||
+                        (sentence.length < 20 && prevSentence.length > 50) ||
+                        (sentence.length > 50 && prevSentence.length < 20)
+                    );
+                    const isQuestion = /[?]$/.test(sentence);
+                    const prevWasQuestion = i > 0 && /[?]$/.test(prevSentence);
+                    
+                    if (isSpeakerChange || isDifferentStyle || (isQuestion && !prevWasQuestion)) {
+                        const sentenceKey = sentence.toLowerCase().substring(0, 30);
+                        if (!speakerMap.has(sentenceKey)) {
+                            speakerCount++;
+                            speakerMap.set(sentenceKey, speakerCount);
+                            currentSpeaker = speakerCount;
+                        } else {
+                            currentSpeaker = speakerMap.get(sentenceKey);
+                        }
+                    }
+                    
+                    if (currentSpeaker > 5) currentSpeaker = 5;
+                    
+                    result.push(`Speaker ${currentSpeaker}: ${sentence}`);
+                }
+                
+                return result.join('\n');
+            }
+        }
+
+        async function exportSummary() {
+            const summaryCard = window.currentSummaryCard;
+            if (!summaryCard) return;
+
+            const title = summaryCard.querySelector('h3').textContent;
+            const participants = summaryCard.querySelector('#summary-participants').textContent;
+            const keyPoints = Array.from(summaryCard.querySelectorAll('#summary-key-points li')).map(li => li.textContent);
+            const actionItems = Array.from(summaryCard.querySelectorAll('#summary-action-items li')).map(li => li.textContent);
+            const transcript = summaryCard.getAttribute('data-transcript') || 'No transcript available';
+            const summaryId = summaryCard.getAttribute('data-summary-id');
+            
+            // Load speaker mappings and apply them to the transcript
+            let finalTranscript = transcript;
+            if (summaryId) {
+                const speakerMappings = await getSpeakerMappings(summaryId);
+                finalTranscript = applySpeakerMappings(transcript, speakerMappings);
+            }
+            
+            // Format transcript with speaker separation for export
+            const formattedTranscript = formatTranscriptForExport(finalTranscript);
+
+            // Create PDF using jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Set up fonts and styling
+            doc.setFont("helvetica");
+            
+            // Title
+            doc.setFontSize(20);
+            doc.setFont("helvetica", "bold");
+            doc.text("MEETING SUMMARY", 20, 30);
+            
+            // Meeting Title
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text(title, 20, 50);
+            
+            // Participants
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("PARTICIPANTS", 20, 70);
+            doc.setFont("helvetica", "normal");
+            doc.text(participants, 20, 80);
+            
+            // Key Points
+            doc.setFont("helvetica", "bold");
+            doc.text("KEY POINTS", 20, 100);
+            doc.setFont("helvetica", "normal");
+            const keyPointsText = keyPoints.map(point => `• ${point}`).join('\n');
+            const keyPointsLines = doc.splitTextToSize(keyPointsText, 170);
+            doc.text(keyPointsLines, 20, 110);
+            
+            // Action Items
+            let yPos = 130 + (keyPointsLines.length * 5);
+            doc.setFont("helvetica", "bold");
+            doc.text("ACTION ITEMS", 20, yPos);
+            doc.setFont("helvetica", "normal");
+            const actionItemsText = actionItems.map(item => `• ${item}`).join('\n');
+            const actionItemsLines = doc.splitTextToSize(actionItemsText, 170);
+            doc.text(actionItemsLines, 20, yPos + 10);
+            
+            // Check if we need a new page for transcript
+            yPos += 20 + (actionItemsLines.length * 5);
+            if (yPos > 250) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            // Transcript
+            doc.setFont("helvetica", "bold");
+            doc.text("FULL TRANSCRIPT", 20, yPos);
+            doc.setFont("helvetica", "normal");
+            const transcriptLines = doc.splitTextToSize(formattedTranscript, 170);
+            
+            // Handle long transcripts across multiple pages
+            let currentY = yPos + 10;
+            for (let i = 0; i < transcriptLines.length; i++) {
+                if (currentY > 280) {
+                    doc.addPage();
+                    currentY = 20;
+                }
+                doc.text(transcriptLines[i], 20, currentY);
+                currentY += 5;
+            }
+            
+            // Save the PDF
+            const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_summary.pdf`;
+            doc.save(fileName);
+        }
+
+        async function relateToClient() {
+            try {
+                console.log('🔗 relateToClient function called');
+                
+                const summaryCard = window.currentSummaryCard;
+                if (!summaryCard) {
+                    console.log('❌ No summary card found');
+                    alert('No summary card found!');
+                    return;
+                }
+
+                const summaryId = summaryCard.getAttribute('data-summary-id');
+                const title = summaryCard.querySelector('h3').textContent;
+                
+                console.log('📋 Summary ID:', summaryId, 'Title:', title);
+                
+                // Initialize Firebase if not already done
+                if (!window.firebaseDB) {
+                    console.log('🔧 Initializing Firebase...');
+                    window.firebaseDB = new FirebaseDatabase();
+                    await window.firebaseDB.initialize();
+                } else {
+                    console.log('✅ Firebase already initialized');
+                }
+                
+                // Get clients from folder section (same data structure as folder view)
+                const folderClients = getFolderClients();
+                console.log('👥 Folder clients loaded:', folderClients.length);
+            
+            // Create client selection popup with search
+            const clientOverlay = document.createElement('div');
+            clientOverlay.className = 'action-menu-overlay';
+            clientOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(10px);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 2000;
+            `;
+            
+            const clientPopup = document.createElement('div');
+            clientPopup.className = 'action-menu-popup';
+            clientPopup.style.cssText = `
+                width: 400px;
+                max-width: 90vw;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                overflow: hidden;
+                max-height: 80vh;
+                position: relative;
+                z-index: 2001;
+            `;
+            
+            // Add dark mode styling
+            if (document.body.classList.contains('dark-mode')) {
+                clientPopup.style.background = 'linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 100%)';
+                clientPopup.style.border = '1px solid #3a3a3c';
+                
+                // Update search input for dark mode
+                const searchInput = clientOverlay.querySelector('#client-search-input');
+                if (searchInput) {
+                    searchInput.style.background = '#3a3a3c';
+                    searchInput.style.borderColor = '#48484a';
+                    searchInput.style.color = '#ffffff';
+                    searchInput.setAttribute('onfocus', "this.style.borderColor='#02a0d1'; this.style.boxShadow='0 0 0 4px rgba(2, 160, 209, 0.2)'; this.style.transform='translateY(-1px)'");
+                    searchInput.setAttribute('onblur', "this.style.borderColor='#48484a'; this.style.boxShadow='none'; this.style.transform='translateY(0)'");
+                }
+            }
+            
+            clientPopup.innerHTML = `
+                <div class="action-menu-header" style="
+                    background: linear-gradient(135deg, #02a0d1 0%, #dc3dcc 100%);
+                    color: white;
+                    padding: 24px 24px 20px 24px;
+                    text-align: left;
+                    position: relative;
+                    border-radius: 20px 20px 0 0;
+                    overflow: hidden;
+                ">
+                    <div style="position: relative; z-index: 2;">
+                        <h3 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">Relate to Client</h3>
+                        <p style="margin: 0; font-size: 14px; color: rgba(255,255,255,0.85); font-weight: 400;">Choose a client to associate this summary with</p>
+                    </div>
+                    <button class="close-btn" onclick="this.closest('.action-menu-overlay').remove()" style="
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        background: rgba(255, 255, 255, 0.2);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        width: 36px;
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        color: white;
+                        font-size: 20px;
+                        font-weight: 300;
+                        transition: all 0.2s ease;
+                        backdrop-filter: blur(10px);
+                        z-index: 3;
+                    " onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='scale(1)'">×</button>
+                    <div style="
+                        position: absolute;
+                        top: -40%;
+                        right: -15%;
+                        width: 80px;
+                        height: 80px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 50%;
+                        z-index: 1;
+                    "></div>
+                    <div style="
+                        position: absolute;
+                        bottom: -25%;
+                        left: -8%;
+                        width: 50px;
+                        height: 50px;
+                        background: rgba(255, 255, 255, 0.08);
+                        border-radius: 50%;
+                        z-index: 1;
+                    "></div>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 16px;">
+                        <div style="position: relative;">
+                            <input type="text" id="client-search-input" placeholder="Search clients..." style="
+                                width: 100%;
+                                padding: 14px 16px 14px 48px;
+                                border: 2px solid #e9ecef;
+                                border-radius: 16px;
+                                font-size: 16px;
+                                background: #ffffff;
+                                color: #333;
+                                box-sizing: border-box;
+                                font-weight: 400;
+                                transition: all 0.3s ease;
+                            " onfocus="this.style.borderColor='#02a0d1'; this.style.boxShadow='0 0 0 4px rgba(2, 160, 209, 0.1)'; this.style.transform='translateY(-1px)'" onblur="this.style.borderColor='#e9ecef'; this.style.boxShadow='none'; this.style.transform='translateY(0)'" />
+                            <div style="
+                                position: absolute;
+                                left: 16px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                color: #8e8e93;
+                                font-size: 18px;
+                                pointer-events: none;
+                            ">🔍</div>
+                        </div>
+                    </div>
+                    <div id="clients-list" style="max-height: 300px; overflow-y: auto;">
+                        <div class="loading-placeholder" style="text-align: center; padding: 20px; color: #666;">
+                            Loading clients...
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            clientOverlay.appendChild(clientPopup);
+            document.body.appendChild(clientOverlay);
+            
+            console.log('🎯 Client popup created and added to DOM');
+            
+            // Load and display clients from folder section
+            displayFolderClientsForSelection(folderClients, summaryId);
+            
+            // Setup search functionality
+            const searchInput = clientOverlay.querySelector('#client-search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    console.log('🔍 Search input changed:', e.target.value);
+                    searchFolderClients(e.target.value, folderClients, summaryId);
+                });
+                console.log('✅ Search functionality setup');
+            } else {
+                console.log('❌ Search input not found');
+            }
+            
+            // Close on overlay click
+            clientOverlay.addEventListener('click', (e) => {
+                if (e.target === clientOverlay) {
+                    console.log('❌ Closing popup');
+                    clientOverlay.remove();
+                }
+            });
+            
+            console.log('✅ relateToClient function completed');
+            
+            } catch (error) {
+                console.error('❌ Error in relateToClient:', error);
+                alert('Error creating client selection popup: ' + error.message);
+            }
+        }
+
+        // Get clients from folder section (same data as folder view)
+        function getFolderClients() {
+            return [
+                { id: 1, name: "John Smith", subtitle: "Last meeting: 2 hours ago", avatar: "JS" },
+                { id: 2, name: "Sarah Johnson", subtitle: "Active client", avatar: "SJ" },
+                { id: 3, name: "Mike Chen", subtitle: "Prospect - Budget approved", avatar: "MC" },
+                { id: 4, name: "Emily Davis", subtitle: "Next meeting: Tomorrow", avatar: "ED" },
+                { id: 5, name: "Robert Wilson", subtitle: "Contract signed", avatar: "RW" },
+                { id: 6, name: "Lisa Anderson", subtitle: "Follow-up needed", avatar: "LA" },
+                { id: 7, name: "David Brown", subtitle: "Proposal sent", avatar: "DB" },
+                { id: 8, name: "Jennifer Taylor", subtitle: "Meeting scheduled", avatar: "JT" },
+                { id: 9, name: "Michael Garcia", subtitle: "Contract pending", avatar: "MG" },
+                { id: 10, name: "Amanda Martinez", subtitle: "Active project", avatar: "AM" },
+                { id: 11, name: "Christopher Lee", subtitle: "Initial consultation", avatar: "CL" },
+                { id: 12, name: "Michelle White", subtitle: "Follow-up scheduled", avatar: "MW" },
+                { id: 13, name: "James Thompson", subtitle: "Proposal review", avatar: "JT" },
+                { id: 14, name: "Ashley Rodriguez", subtitle: "Contract negotiation", avatar: "AR" },
+                { id: 15, name: "Daniel Kim", subtitle: "Project kickoff", avatar: "DK" },
+                { id: 16, name: "Stephanie Clark", subtitle: "Status update", avatar: "SC" },
+                { id: 17, name: "Matthew Lewis", subtitle: "Budget discussion", avatar: "ML" },
+                { id: 18, name: "Nicole Walker", subtitle: "Timeline review", avatar: "NW" },
+                { id: 19, name: "Kevin Young", subtitle: "Technical review", avatar: "KY" },
+                { id: 20, name: "Rachel King", subtitle: "Final presentation", avatar: "RK" }
+            ];
+        }
+
+        function displayFolderClientsForSelection(clients, summaryId) {
+            console.log('🎨 Displaying clients for selection:', clients.length, 'clients');
+            
+            const clientsList = document.getElementById('clients-list');
+            if (!clientsList) {
+                console.log('❌ Clients list element not found');
+                return;
+            }
+            
+            if (clients.length === 0) {
+                console.log('⚠️ No clients to display');
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                clientsList.innerHTML = `
+                    <div class="loading-placeholder" style="text-align: center; padding: 20px; color: ${isDarkMode ? '#a1a1a6' : '#666'};">
+                        No clients found.
+                    </div>
+                `;
+                return;
+            }
+            
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const clientItemStyle = isDarkMode ? {
+                background: '#3a3a3c',
+                borderColor: '#48484a',
+                hoverBackground: '#48484a',
+                hoverBorderColor: '#02a0d1',
+                nameColor: '#ffffff',
+                subtitleColor: '#a1a1a6'
+            } : {
+                background: '#ffffff',
+                borderColor: '#f0f0f0',
+                hoverBackground: '#f8f9fa',
+                hoverBorderColor: '#02a0d1',
+                nameColor: '#1a1a1a',
+                subtitleColor: '#666'
+            };
+
+            clientsList.innerHTML = clients.map(client => `
+                <div class="client-item" onclick="selectClient('${client.name}', '${summaryId}'); this.closest('.action-menu-overlay').remove();" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    padding: 16px 20px;
+                    background: ${clientItemStyle.background};
+                    border: 2px solid ${clientItemStyle.borderColor};
+                    border-radius: 16px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    margin-bottom: 12px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,${isDarkMode ? '0.2' : '0.04'});
+                " onmouseover="this.style.background='${clientItemStyle.hoverBackground}'; this.style.borderColor='${clientItemStyle.hoverBorderColor}'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(2, 160, 209, ${isDarkMode ? '0.3' : '0.15'})'" onmouseout="this.style.background='${clientItemStyle.background}'; this.style.borderColor='${clientItemStyle.borderColor}'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,${isDarkMode ? '0.2' : '0.04'})'">
+                    <div style="
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-size: 18px;
+                        font-weight: 700;
+                        box-shadow: 0 2px 8px rgba(2, 160, 209, 0.3);
+                        position: relative;
+                    ">
+                        <div style="
+                            position: absolute;
+                            top: -2px;
+                            right: -2px;
+                            width: 12px;
+                            height: 12px;
+                            background: #4CAF50;
+                            border: 2px solid white;
+                            border-radius: 50%;
+                        "></div>
+                        ${client.avatar}
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <h4 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 600; color: ${clientItemStyle.nameColor}; line-height: 1.3;">${client.name}</h4>
+                        <p style="margin: 0; font-size: 14px; color: ${clientItemStyle.subtitleColor}; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${client.subtitle || 'No additional info'}</p>
+                    </div>
+                    <div style="
+                        color: #02a0d1; 
+                        font-size: 24px; 
+                        font-weight: 300;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.transform='translateX(4px)'; this.style.color='#dc3dcc'" onmouseout="this.style.transform='translateX(0)'; this.style.color='#02a0d1'">›</div>
+                </div>
+            `).join('');
+            
+            console.log('✅ Clients list rendered successfully');
+        }
+
+        function searchFolderClients(searchTerm, allClients, summaryId) {
+            const filteredClients = allClients.filter(client => 
+                client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (client.subtitle && client.subtitle.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+            displayFolderClientsForSelection(filteredClients, summaryId);
+        }
+
+        async function loadClientsForSelection(summaryId) {
+            try {
+                const clients = await window.firebaseDB.getClients();
+                displayClientsForSelection(clients, summaryId);
+            } catch (error) {
+                console.error('Error loading clients:', error);
+                const clientsList = document.getElementById('clients-list');
+                clientsList.innerHTML = `
+                    <div class="loading-placeholder" style="text-align: center; padding: 20px; color: #666;">
+                        Error loading clients. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+
+        async function selectClient(clientName, summaryId) {
+            console.log(`📋 Relating summary ${summaryId} to client: ${clientName}`);
+            
+            try {
+                // Ensure Firebase is initialized
+                if (!window.firebaseDB) {
+                    console.log('🔧 Initializing Firebase database...');
+                    window.firebaseDB = new FirebaseDatabase();
+                    await window.firebaseDB.initialize();
+                }
+
+                // Get the current summary data
+                const summaryCard = window.currentSummaryCard;
+                if (!summaryCard) {
+                    alert('Error: Summary not found');
+                    return;
+                }
+
+                const summaryData = {
+                    id: summaryId,
+                    title: summaryCard.querySelector('h3').textContent,
+                    date: summaryCard.querySelector('.summary-date').textContent,
+                    participants: summaryCard.querySelector('#summary-participants')?.textContent || 'N/A',
+                    keyPoints: Array.from(summaryCard.querySelectorAll('#summary-key-points li')).map(li => li.textContent),
+                    actionItems: Array.from(summaryCard.querySelectorAll('#summary-action-items li')).map(li => li.textContent),
+                    summary: summaryCard.querySelector('#summary-summary')?.textContent || 'N/A',
+                    transcript: summaryCard.getAttribute('data-transcript') || '',
+                    relatedClient: clientName,
+                    relatedAt: new Date().toISOString()
+                };
+
+                // Save the summary with client relationship
+                await window.firebaseDB.saveSummary(summaryData);
+                
+                // Also save the relationship separately for easy querying
+                await window.firebaseDB.saveClientSummaryRelation(clientName, summaryId, summaryData);
+                
+                alert(`Summary successfully related to ${clientName}!`);
+                console.log('✅ Summary-client relationship saved successfully');
+                
+            } catch (error) {
+                console.error('❌ Error saving summary-client relationship:', error);
+                alert('Error saving relationship. Please try again.');
+            }
+        }
+
+        async function deleteSummary() {
+            if (confirm('Are you sure you want to delete this summary?')) {
+                const summaryCard = window.currentSummaryCard;
+                if (summaryCard) {
+                    try {
+                        // Get the summary ID from the card's data attribute
+                        const summaryId = summaryCard.getAttribute('data-summary-id');
+                        console.log('🗑️ Deleting summary with ID:', summaryId);
+                        
+                        if (summaryId) {
+                            // Ensure Firebase is initialized
+                            if (!window.firebaseDB) {
+                                console.log('🔧 Initializing Firebase database...');
+                                window.firebaseDB = new FirebaseDatabase();
+                                await window.firebaseDB.initialize();
+                            }
+                            
+                            // Delete from Firebase database
+                            await window.firebaseDB.deleteSummary(summaryId);
+                            console.log('✅ Summary deleted from database');
+                        } else {
+                            console.log('⚠️ No summary ID found, removing from DOM only');
+                        }
+                        
+                        // Remove from DOM
+                        summaryCard.remove();
+                        hideActionMenu();
+                        
+                        // Show success message
+                        console.log('✅ Summary deleted successfully');
+                        
+                    } catch (error) {
+                        console.error('❌ Error deleting summary:', error);
+                        alert('Failed to delete summary. Please try again.');
+                    }
+                }
+            }
+        }
+
+        // Function to show mock data fallback
+        async function showMockDataFallback() {
+            console.log('📋 Showing mock data fallback...');
+            
+            const mockSummaries = [
+                {
+                    title: "Q4 Product Strategy Meeting",
+                    date: "2024-01-15T10:00:00Z",
+                    duration: "45 minutes",
+                    participants: ["Sarah Johnson", "Mike Chen", "Alex Rodriguez", "Emma Wilson"],
+                    summary: "Discussed Q4 product roadmap, new feature priorities, and resource allocation. Key focus on mobile app improvements and AI integration.",
+                    keyPoints: [
+                        "Mobile app redesign scheduled for March",
+                        "AI-powered search feature in development",
+                        "User feedback analysis shows 85% satisfaction",
+                        "Budget approval for 3 new developers"
+                    ],
+                    actionItems: [
+                        "Sarah: Complete user research by Feb 1st",
+                        "Mike: Present technical feasibility report",
+                        "Alex: Schedule follow-up with design team",
+                        "Emma: Prepare budget breakdown for stakeholders"
+                    ],
+                    fullTranscript: "Sarah Johnson: Good morning everyone, thanks for joining our Q4 product strategy meeting..."
+                },
+                {
+                    title: "Client Onboarding Process Review",
+                    date: "2024-01-12T14:30:00Z",
+                    duration: "30 minutes",
+                    participants: ["David Kim", "Lisa Thompson", "James Park"],
+                    summary: "Reviewed current client onboarding process and identified bottlenecks. Discussed improvements to reduce time-to-value for new clients.",
+                    keyPoints: [
+                        "Current onboarding takes 2-3 weeks",
+                        "Main bottleneck is documentation review",
+                        "Proposed automated checklist system",
+                        "Target: Reduce to 1 week onboarding"
+                    ],
+                    actionItems: [
+                        "David: Create automated checklist template",
+                        "Lisa: Test new process with 3 clients",
+                        "James: Update client documentation"
+                    ],
+                    fullTranscript: "David Kim: Let's start by reviewing our current onboarding metrics..."
+                }
+            ];
+            
+            // Update debug indicator
+            const debugIndicator = document.getElementById('debug-indicator');
+            if (debugIndicator) {
+                debugIndicator.textContent = `DEBUG: Showing ${mockSummaries.length} mock summaries`;
+                setTimeout(() => {
+                    debugIndicator.style.display = 'none';
+                }, 3000);
+            }
+            
+            await displayAllSummaries(mockSummaries);
+        }
+
+        // Function to test Firebase integration and add sample data
+        async function testFirebaseIntegration() {
+            console.log('🧪 Testing Firebase integration...');
+            
+            try {
+                // Initialize Firebase
+                await window.firebaseDB.initialize();
+                console.log('✅ Firebase initialized');
+                
+                // Get current user
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('👤 Current user ID:', userId);
+                
+                if (!userId) {
+                    console.log('❌ No user ID - please log in first');
+                    return false;
+                }
+                
+                // Try to load existing summaries
+                console.log('📡 Attempting to load existing summaries...');
+                const existingSummaries = await window.firebaseDB.getSummaries(10);
+                console.log('📊 Found existing summaries:', existingSummaries ? existingSummaries.length : 0);
+                
+                if (existingSummaries && existingSummaries.length > 0) {
+                    console.log('✅ Firebase integration working! Found real summaries:');
+                    existingSummaries.forEach((summary, index) => {
+                        console.log(`  ${index + 1}. ${summary.title} (${summary.date || summary.createdAt})`);
+                    });
+                    
+                    // Display the real summaries
+                    await displayAllSummaries(existingSummaries);
+                    return true;
+                } else {
+                    console.log('📭 No existing summaries found');
+                    
+                    // Try to add a test summary
+                    console.log('📝 Adding test summary to Firebase...');
+                    const testSummary = {
+                        title: "Test Firebase Integration",
+                        date: new Date().toISOString(),
+                        duration: "15 minutes",
+                        participants: ["Test User"],
+                        summary: "This is a test summary to verify Firebase integration is working properly.",
+                        keyPoints: ["Firebase connection established", "Data can be saved and retrieved"],
+                        actionItems: ["Verify Firebase permissions", "Test data persistence"],
+                        fullTranscript: "Test User: This is a test transcript to verify Firebase integration."
+                    };
+                    
+                    const saved = await window.firebaseDB.saveSummary(testSummary);
+                    if (saved) {
+                        console.log('✅ Test summary saved successfully!');
+                        
+                        // Try to load it back
+                        const loadedSummaries = await window.firebaseDB.getSummaries(10);
+                        if (loadedSummaries && loadedSummaries.length > 0) {
+                            console.log('✅ Firebase integration working! Loading saved summary...');
+                            await displayAllSummaries(loadedSummaries);
+                            return true;
+                        }
+                    } else {
+                        console.log('❌ Failed to save test summary');
+                    }
+                }
+                
+            } catch (error) {
+                console.log('❌ Firebase integration test failed:', error);
+                if (error.code === 'permission-denied') {
+                    console.log('🔒 Permission denied - Firebase security rules need to be configured');
+                    console.log('💡 To fix: Update Firebase security rules to allow read/write access');
+                }
+                return false;
+            }
+            
+            return false;
+        }
+
+        // Function to populate Firebase with sample data for authenticated users (disabled to avoid permission errors)
+        async function populateFirebaseWithSampleData() {
+            console.log('⚠️ Firebase sample data population disabled due to permission issues');
+            return;
+            
+            try {
+                console.log('🔄 Checking if we should populate Firebase with sample data...');
+                
+                // Check if user is authenticated
+                const userId = window.firebaseDB.getCurrentUserId();
+                if (!userId) {
+                    console.log('⚠️ No authenticated user, skipping sample data population');
+                    return;
+                }
+                
+                // Check if user already has summaries
+                const existingSummaries = await window.firebaseDB.getSummaries(1);
+                if (existingSummaries && existingSummaries.length > 0) {
+                    console.log('✅ User already has summaries, skipping sample data population');
+                    return;
+                }
+                
+                // Don't populate sample data if user already has summaries
+                const currentUserId = window.firebaseDB.getCurrentUserId();
+                if (currentUserId) {
+                    console.log('✅ User has data space, checking for existing summaries...');
+                    // The existing check above will handle this
+                }
+                
+                console.log('📝 Populating Firebase with sample data for user:', currentUserId);
+                
+                // Sample summaries to add
+                const sampleSummaries = [
+                    {
+                        title: "Q4 Product Strategy Meeting",
+                        date: new Date().toISOString(),
+                        duration: "45 minutes",
+                        participants: ["Sarah Johnson", "Mike Chen", "Alex Rodriguez", "Emma Wilson"],
+                        summary: "Discussed Q4 product roadmap, new feature priorities, and resource allocation. Key focus on mobile app improvements and AI integration.",
+                        keyPoints: [
+                            "Mobile app redesign scheduled for March",
+                            "AI-powered search feature in development",
+                            "User feedback analysis shows 85% satisfaction",
+                            "Budget approval for 3 new developers"
+                        ],
+                        actionItems: [
+                            "Sarah: Complete user research by Feb 1st",
+                            "Mike: Present technical feasibility report",
+                            "Alex: Schedule follow-up with design team",
+                            "Emma: Prepare budget breakdown for stakeholders"
+                        ],
+                        transcript: "Sarah Johnson: Good morning everyone, thanks for joining our Q4 product strategy meeting. Let's start by reviewing our current roadmap..."
+                    },
+                    {
+                        title: "Client Onboarding Process Review",
+                        date: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+                        duration: "30 minutes",
+                        participants: ["David Kim", "Lisa Thompson", "James Park"],
+                        summary: "Reviewed current client onboarding process and identified bottlenecks. Discussed improvements to reduce time-to-value for new clients.",
+                        keyPoints: [
+                            "Current onboarding takes 2-3 weeks",
+                            "Main bottleneck is documentation review",
+                            "Proposed automated checklist system",
+                            "Client satisfaction scores need improvement"
+                        ],
+                        actionItems: [
+                            "David: Create automated workflow diagram",
+                            "Lisa: Research best practices from competitors",
+                            "James: Implement new client feedback system"
+                        ],
+                        transcript: "David Kim: Let's start by reviewing our current onboarding metrics. Lisa, can you share the latest numbers?"
+                    }
+                ];
+                
+                // Save each sample summary
+                for (const summary of sampleSummaries) {
+                    await window.firebaseDB.saveSummary(summary);
+                    console.log('✅ Saved sample summary:', summary.title);
+                }
+                
+                console.log('🎉 Successfully populated Firebase with sample data');
+                
+            } catch (error) {
+                console.error('❌ Error populating Firebase with sample data:', error);
+            }
+        }
+
+        // Load summary when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Summary view page loaded, starting data load...');
+            
+            // Check authentication status
+            const userSession = sessionStorage.getItem('userAuthenticated');
+            const userEmail = localStorage.getItem('userEmail');
+            const authUserId = window.firebaseDB ? window.firebaseDB.getCurrentUserId() : null;
+            
+            console.log('🔍 Authentication Debug Info:');
+            console.log('  - User session:', userSession);
+            console.log('  - User email:', userEmail);
+            console.log('  - User ID:', authUserId);
+            console.log('  - Firebase DB available:', !!window.firebaseDB);
+            
+            if (userSession === 'true') {
+                console.log('✅ User authenticated via session');
+            } else {
+                console.log('⚠️ No user session found - redirecting to login');
+                // Redirect to login if not authenticated
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Check if this is a refresh from upload
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('refresh')) {
+                console.log('🔄 Page refreshed from upload, clearing cache and reloading...');
+                // Clear any cached data to ensure fresh load
+                localStorage.removeItem('latest_summary');
+            }
+            
+            // Try to load summaries (with fallback to mock data)
+            try {
+                await loadLatestSummary();
+            } catch (error) {
+                console.log('⚠️ Error loading summaries, showing mock data:', error.message);
+                // Show mock data directly
+                await showMockDataFallback();
+            }
+        });
+
+        // Close action menu when clicking outside
+        document.getElementById('action-menu-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                hideActionMenu();
+            }
+        });
+
+        // Close expanded summary when clicking outside
+        document.getElementById('expanded-summary-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeExpandedSummary();
+            }
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('summary-search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const input = this.value.trim().toLowerCase();
+                const cards = document.querySelectorAll('.summary-card');
+                cards.forEach(card => {
+                    const title = card.querySelector('.summary-title-section h3');
+                    if (title) {
+                        const titleText = title.textContent.toLowerCase();
+                        if (!input || titleText.includes(input)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        }
+
+        // Function to test user isolation and authentication
+        async function testUserIsolation() {
+            try {
+                console.log('🧪 Testing user isolation...');
+                
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('👤 Current user ID:', userId);
+                
+                if (!userId) {
+                    console.log('❌ No user ID found - authentication failed');
+                    return false;
+                }
+                
+                // Test loading summaries for this specific user
+                const summaries = await window.firebaseDB.getSummaries(10);
+                console.log('📊 Loaded summaries for user:', summaries ? summaries.length : 0);
+                
+                // Verify summaries belong to this user
+                if (summaries && summaries.length > 0) {
+                    console.log('✅ User isolation test passed - summaries loaded for authenticated user');
+                    return true;
+                } else {
+                    console.log('⚠️ No summaries found for this user (this is normal for new users)');
+                    return true;
+                }
+                
+            } catch (error) {
+                console.error('❌ User isolation test failed:', error);
+                return false;
+            }
+        }
+
+        // Function to clear all summaries for testing (development only)
+        async function clearAllSummaries() {
+            if (confirm('Are you sure you want to clear all summaries? This action cannot be undone.')) {
+                try {
+                    console.log('🗑️ Clearing all summaries...');
+                    const summaries = await window.firebaseDB.getSummaries(100);
+                    
+                    if (summaries && summaries.length > 0) {
+                        for (const summary of summaries) {
+                            await window.firebaseDB.deleteSummary(summary.id);
+                            console.log('✅ Deleted summary:', summary.title);
+                        }
+                        console.log('🎉 All summaries cleared');
+                        // Reload the page to show empty state
+                        location.reload();
+                    } else {
+                        console.log('📭 No summaries to clear');
+                    }
+                } catch (error) {
+                    console.error('❌ Error clearing summaries:', error);
+                }
+            }
+        }
+
+        // Function to test connection to existing Firebase data
+        async function testExistingFirebaseData() {
+            try {
+                console.log('🧪 Testing connection to existing Firebase data...');
+                
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('👤 Current user ID:', userId);
+                
+                if (!userId) {
+                    console.log('❌ No user ID found - please log in first');
+                    return false;
+                }
+                
+                // Test loading summaries for this specific user
+                const summaries = await window.firebaseDB.getSummaries(10);
+                console.log('📊 Found summaries in Firebase:', summaries ? summaries.length : 0);
+                
+                if (summaries && summaries.length > 0) {
+                    console.log('✅ Successfully loaded existing Firebase data!');
+                    console.log('📋 Summary titles:', summaries.map(s => s.title));
+                    console.log('📅 Summary dates:', summaries.map(s => s.date || s.createdAt));
+                    return true;
+                } else {
+                    console.log('📭 No summaries found for this user in Firebase');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error testing Firebase data:', error);
+                return false;
+            }
+        }
+
+        // Function to manually test data loading
+        async function testDataLoading() {
+            console.log('🧪 Manual data loading test...');
+            
+            try {
+                // Check authentication
+                const userSession = sessionStorage.getItem('userAuthenticated');
+                const userEmail = localStorage.getItem('userEmail');
+                console.log('Auth check - Session:', userSession, 'Email:', userEmail);
+                
+                if (userSession !== 'true') {
+                    console.log('❌ Not authenticated - please log in first');
+                    return false;
+                }
+                
+                // Initialize Firebase
+                if (!window.firebaseDB) {
+                    console.log('❌ Firebase DB not available');
+                    return false;
+                }
+                
+                await window.firebaseDB.initialize();
+                console.log('✅ Firebase initialized');
+                
+                // Get user ID
+                const testUserId = window.firebaseDB.getCurrentUserId();
+                console.log('👤 User ID:', testUserId);
+                console.log('📧 User Email:', userEmail);
+                console.log('🔗 Firebase Path: users/' + testUserId + '/summaries/');
+                
+                if (!testUserId) {
+                    console.log('❌ No user ID found');
+                    return false;
+                }
+                
+                // Test loading summaries
+                const summaries = await window.firebaseDB.getSummaries(10);
+                console.log('📊 Loaded summaries:', summaries ? summaries.length : 0);
+                
+                if (summaries && summaries.length > 0) {
+                    console.log('✅ Found summaries:', summaries.map(s => s.title));
+                    // Try to display them
+                    await displayAllSummaries(summaries);
+                    return true;
+                } else {
+                    console.log('📭 No summaries found - this might be normal for new users');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error in manual test:', error);
+                return false;
+            }
+        }
+
+        // Function to show current user info
+        function showUserInfo() {
+            const userSession = sessionStorage.getItem('userAuthenticated');
+            const userEmail = localStorage.getItem('userEmail');
+            const infoUserId = window.firebaseDB ? window.firebaseDB.getCurrentUserId() : 'Not available';
+            
+            console.log('👤 Current User Information:');
+            console.log('  - Authenticated:', userSession === 'true');
+            console.log('  - Email:', userEmail);
+            console.log('  - User ID:', infoUserId);
+            console.log('  - Firebase Path: users/' + infoUserId + '/summaries/');
+            
+            return {
+                authenticated: userSession === 'true',
+                email: userEmail,
+                userId: infoUserId,
+                firebasePath: 'users/' + infoUserId + '/summaries/'
+            };
+        }
+
+        // Function to force reload summaries (clears cache)
+        async function forceReloadSummaries() {
+            console.log('🔄 Force reloading summaries (clearing cache)...');
+            // Clear cache to force fresh load
+            summariesCache = null;
+            cacheTimestamp = null;
+            try {
+                await loadLatestSummary();
+                console.log('✅ Summaries reloaded successfully');
+                return true;
+            } catch (error) {
+                console.error('❌ Error reloading summaries:', error);
+                return false;
+            }
+        }
+
+        // Function to clear cache
+        function clearSummariesCache() {
+            summariesCache = null;
+            cacheTimestamp = null;
+            console.log('🗑️ Summaries cache cleared');
+        }
+
+        // Comprehensive debugging function
+        async function debugSummariesNotShowing() {
+            console.log('🔍 === COMPREHENSIVE DEBUGGING ===');
+            
+            // Step 1: Check authentication
+            console.log('\n1️⃣ AUTHENTICATION CHECK:');
+            const userSession = sessionStorage.getItem('userAuthenticated');
+            const userEmail = localStorage.getItem('userEmail');
+            console.log('  - User session:', userSession);
+            console.log('  - User email:', userEmail);
+            console.log('  - Session valid:', userSession === 'true');
+            
+            if (userSession !== 'true') {
+                console.log('❌ NOT AUTHENTICATED - This is the problem!');
+                console.log('💡 Solution: Go to login page and authenticate first');
+                return false;
+            }
+            
+            // Step 2: Check Firebase availability
+            console.log('\n2️⃣ FIREBASE AVAILABILITY:');
+            console.log('  - Firebase DB available:', !!window.firebaseDB);
+            console.log('  - Firebase ready:', !!window.firebaseReady);
+            
+            if (!window.firebaseDB) {
+                console.log('❌ FIREBASE DB NOT AVAILABLE - This is the problem!');
+                console.log('💡 Solution: Check if firebase-database.js is loaded');
+                return false;
+            }
+            
+            // Step 3: Initialize Firebase
+            console.log('\n3️⃣ FIREBASE INITIALIZATION:');
+            try {
+                await window.firebaseDB.initialize();
+                console.log('✅ Firebase initialized successfully');
+            } catch (error) {
+                console.log('❌ FIREBASE INITIALIZATION FAILED:', error);
+                console.log('💡 Solution: Check Firebase configuration');
+                return false;
+            }
+            
+            // Step 4: Check user ID
+            console.log('\n4️⃣ USER ID CHECK:');
+            const debugUserId = window.firebaseDB.getCurrentUserId();
+            console.log('  - User ID:', debugUserId);
+            console.log('  - User ID valid:', !!debugUserId);
+            
+            if (!debugUserId) {
+                console.log('❌ NO USER ID - This is the problem!');
+                console.log('💡 Solution: Check authentication and user mapping');
+                return false;
+            }
+            
+            // Step 5: Test Firebase data loading
+            console.log('\n5️⃣ FIREBASE DATA LOADING:');
+            try {
+                const summaries = await window.firebaseDB.getSummaries(10);
+                console.log('  - Summaries loaded:', !!summaries);
+                console.log('  - Number of summaries:', summaries ? summaries.length : 0);
+                console.log('  - Summaries type:', typeof summaries);
+                console.log('  - Is array:', Array.isArray(summaries));
+                
+                if (summaries && summaries.length > 0) {
+                    console.log('✅ Firebase data found:', summaries.map(s => s.title));
+                } else {
+                    console.log('📭 No Firebase data found (this is normal for new users)');
+                }
+            } catch (error) {
+                console.log('❌ FIREBASE DATA LOADING FAILED:', error);
+                console.log('💡 Solution: Check Firebase connection and permissions');
+                return false;
+            }
+            
+            // Step 6: Check DOM elements
+            console.log('\n6️⃣ DOM ELEMENTS CHECK:');
+            const container = document.getElementById('summary-list-container');
+            console.log('  - Container exists:', !!container);
+            console.log('  - Container HTML:', container ? container.innerHTML.substring(0, 100) + '...' : 'N/A');
+            
+            if (!container) {
+                console.log('❌ CONTAINER NOT FOUND - This is the problem!');
+                console.log('💡 Solution: Check HTML structure');
+                return false;
+            }
+            
+            // Step 7: Test display function
+            console.log('\n7️⃣ DISPLAY FUNCTION TEST:');
+            try {
+                const testSummaries = [{
+                    title: 'Test Summary',
+                    date: new Date().toISOString(),
+                    participants: ['Test User'],
+                    summary: 'This is a test summary',
+                    keyPoints: ['Test point'],
+                    actionItems: ['Test action']
+                }];
+                
+                await displayAllSummaries(testSummaries);
+                console.log('✅ Display function works');
+                
+                // Check if test summary appeared
+                const testCard = document.querySelector('.summary-card');
+                console.log('  - Test card created:', !!testCard);
+                console.log('  - Cards in container:', document.querySelectorAll('.summary-card').length);
+                
+            } catch (error) {
+                console.log('❌ DISPLAY FUNCTION FAILED:', error);
+                console.log('💡 Solution: Check displayAllSummaries function');
+                return false;
+            }
+            
+            // Step 8: Final summary
+            console.log('\n8️⃣ FINAL DIAGNOSIS:');
+            console.log('✅ All checks passed - summaries should be showing');
+            console.log('💡 If still not showing, try:');
+            console.log('   - Refresh the page');
+            console.log('   - Check browser console for errors');
+            console.log('   - Try forceReloadSummaries()');
+            
+            return true;
+        }
+
+        // Add global functions for testing (development only)
+        window.testUserIsolation = testUserIsolation;
+        window.clearAllSummaries = clearAllSummaries;
+        window.populateFirebaseWithSampleData = populateFirebaseWithSampleData;
+        window.testExistingFirebaseData = testExistingFirebaseData;
+        window.testDataLoading = testDataLoading;
+        window.showUserInfo = showUserInfo;
+        window.forceReloadSummaries = forceReloadSummaries;
+        window.debugSummariesNotShowing = debugSummariesNotShowing;
+        window.testFirebaseIntegration = testFirebaseIntegration;
+        window.clearSummariesCache = clearSummariesCache;
+
+        // Enable touch interactions
+        document.querySelectorAll(".summary-card, .nav-item, .fab, .filter-button").forEach(item => {
+            item.addEventListener("touchstart", function() {}); // Enables :active state on touch
+        });
+    </script>
+
+    <!-- Theme Management -->
+    <script>
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Listen for theme changes from settings page
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                if (e.newValue === 'dark') {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

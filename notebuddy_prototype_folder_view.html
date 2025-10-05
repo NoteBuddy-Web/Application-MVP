@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Folders</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode {
+            background-color: #1c1c1e;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            color: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .app-frame {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #ffffff;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        body.dark-mode .status-bar-placeholder {
+            background-color: #1c1c1e;
+        }
+
+        .main-content {
+            padding-top: 44px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 44px;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .header {
+            background-color: #1c1c1e;
+        }
+
+        .header .action-button-placeholder-left {
+            width: 60px; 
+        }
+
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #000000;
+        }
+
+        body.dark-mode .header h1 {
+            color: #ffffff;
+        }
+        
+
+        /* Folders Section */
+        .folders-section {
+            padding: 40px 16px 20px 16px;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode .folders-section {
+            background-color: #1c1c1e;
+        }
+
+        .folders-pager {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .folders-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .folders-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .folder-page {
+            min-width: 100%;
+            scroll-snap-align: start;
+            padding: 0 4px;
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 12px;
+            height: 200px;
+        }
+
+        .folder-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .folder-card:hover {
+            background-color: #f2f2f7;
+            border-color: #02a0d1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode .folder-card {
+            background-color: #2c2c2e;
+            border: 1px solid #48484a;
+        }
+
+        body.dark-mode .folder-card:hover {
+            background-color: #3a3a3c;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .folder-card:active {
+            transform: scale(0.98);
+        }
+
+        .folder-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #000000;
+            margin: 0 0 4px 0;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        body.dark-mode .folder-name {
+            color: #ffffff;
+        }
+
+        .folder-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 8px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .page-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 16px;
+        }
+
+        .page-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #48484a;
+            transition: background-color 0.2s ease;
+        }
+
+        .page-indicator.active {
+            background-color: #02a0d1;
+        }
+
+        /* Clients Section */
+        .clients-section {
+            background-color: #ffffff;
+            padding: 0 16px 20px 16px;
+            margin-top: -8px;
+        }
+
+        body.dark-mode .clients-section {
+            background-color: #1c1c1e;
+        }
+
+        .clients-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        .clients-search {
+            background-color: #ffffff;
+            border: 1px solid #e5e5e7;
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: #000000;
+            font-size: 16px;
+            margin-bottom: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .clients-search {
+            background-color: #2c2c2e;
+            border: 1px solid #48484a;
+            color: #ffffff;
+        }
+
+        .clients-search:focus {
+            outline: none;
+            border-color: #02a0d1;
+            box-shadow: 0 0 0 2px rgba(2, 160, 209, 0.2);
+        }
+
+        .clients-search::placeholder {
+            color: #a1a1a6;
+        }
+
+        .clients-list {
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+        }
+
+        body.dark-mode .clients-list {
+            background-color: #2c2c2e;
+            border: 1px solid #48484a;
+        }
+
+        .client-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 0.5px solid #e5e5e7;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+        body.dark-mode .client-row {
+            border-bottom: 0.5px solid #48484a;
+        }
+
+        .client-row:last-child {
+            border-bottom: none;
+        }
+
+        .client-row:hover {
+            background-color: #f2f2f7;
+        }
+
+        .client-row:active {
+            background-color: #e5e5e7;
+        }
+
+        body.dark-mode .client-row:hover {
+            background-color: #3a3a3c;
+        }
+
+        body.dark-mode .client-row:active {
+            background-color: #48484a;
+        }
+
+        .client-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .client-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .client-name {
+            font-size: 16px;
+            font-weight: 400;
+            color: #000000;
+            margin: 0 0 2px 0;
+        }
+
+        body.dark-mode .client-name {
+            color: #ffffff;
+        }
+
+        .client-subtitle {
+            font-size: 14px;
+            color: #8e8e93;
+            margin: 0;
+        }
+
+        body.dark-mode .client-subtitle {
+            color: #a1a1a6;
+        }
+
+        .client-chevron {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-left: 8px;
+        }
+
+        body.dark-mode .client-chevron {
+            color: #a1a1a6;
+        }
+
+        /* Empty States */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            color: #8e8e93;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-message {
+            font-size: 16px;
+            color: #8e8e93;
+            margin: 0;
+        }
+
+        body.dark-mode .empty-state-icon,
+        body.dark-mode .empty-state-message {
+            color: #a1a1a6;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 6px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        body.dark-mode .bottom-nav {
+            background-color: rgba(44, 44, 46, 0.94);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        body.dark-mode .nav-item {
+            color: #a1a1a6;
+        }
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        body.dark-mode .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-top: -20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 375px) {
+            .folder-grid {
+                gap: 8px;
+            }
+            
+            .folder-card {
+                padding: 12px;
+            }
+            
+            .folder-name {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        <div class="header">
+            <div class="action-button-placeholder-left"></div>
+            <h1>Folders</h1>
+        </div>
+
+        <div class="main-content">
+            <!-- Folders Section -->
+            <div class="folders-section">
+                <div class="folders-pager" id="foldersPager">
+                    <div class="folders-container" id="foldersContainer">
+                        <!-- Folder pages will be generated by JavaScript -->
+                </div>
+                    <div class="page-indicators" id="pageIndicators">
+                        <!-- Page indicators will be generated by JavaScript -->
+            </div>
+                    </div>
+                </div>
+
+            <!-- Clients Section -->
+            <div class="clients-section">
+                <div class="clients-header">Clients</div>
+                <input type="text" class="clients-search" placeholder="Search clients..." id="clientsSearch">
+                <div class="clients-list" id="clientsList">
+                    <!-- Client rows will be generated by JavaScript -->
+                    </div>
+                </div>
+        </div>
+        
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </a>
+            <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Calendar
+            </a>
+            <div class="fab-container">
+                <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
+            </div>
+            <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Summaries
+            </a>
+            <a href="notebuddy_prototype_folder_view.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                </svg>
+                Folders
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Sample data
+        const sampleFolders = [
+            { id: 1, name: "Client Management", type: "clients", openTasksCount: 12, icon: "C" },
+            { id: 2, name: "TechCorp Solutions", type: "clients", openTasksCount: 3, icon: "TC" },
+            { id: 3, name: "Q4 Marketing Campaign", type: "projects", openTasksCount: 8, icon: "QM" },
+            { id: 4, name: "AI Integration", type: "projects", openTasksCount: 5, icon: "AI" },
+            { id: 5, name: "Downtown Properties", type: "properties", openTasksCount: 2, icon: "DP" },
+            { id: 6, name: "Luxury Homes", type: "properties", openTasksCount: 7, icon: "LH" },
+            { id: 7, name: "Global Finance Inc.", type: "clients", openTasksCount: 1, icon: "GF" },
+            { id: 8, name: "Compliance Review", type: "projects", openTasksCount: 4, icon: "CR" },
+            { id: 9, name: "Commercial Real Estate", type: "properties", openTasksCount: 6, icon: "CE" },
+            { id: 10, name: "Startup Ventures", type: "clients", openTasksCount: 9, icon: "SV" },
+            { id: 11, name: "Mobile App Development", type: "projects", openTasksCount: 11, icon: "MA" },
+            { id: 12, name: "Residential Properties", type: "properties", openTasksCount: 3, icon: "RP" },
+            { id: 13, name: "Enterprise Solutions", type: "clients", openTasksCount: 15, icon: "ES" },
+            { id: 14, name: "Data Analytics", type: "projects", openTasksCount: 6, icon: "DA" },
+            { id: 15, name: "Retail Spaces", type: "properties", openTasksCount: 4, icon: "RS" },
+            { id: 16, name: "Healthcare Partners", type: "clients", openTasksCount: 8, icon: "HP" },
+            { id: 17, name: "Cloud Migration", type: "projects", openTasksCount: 13, icon: "CM" },
+            { id: 18, name: "Industrial Properties", type: "properties", openTasksCount: 2, icon: "IP" },
+            { id: 19, name: "Financial Services", type: "clients", openTasksCount: 7, icon: "FS" },
+            { id: 20, name: "UI/UX Redesign", type: "projects", openTasksCount: 9, icon: "UX" },
+            { id: 21, name: "Office Buildings", type: "properties", openTasksCount: 5, icon: "OB" },
+            { id: 22, name: "E-commerce Platform", type: "projects", openTasksCount: 14, icon: "EC" },
+            { id: 23, name: "Legal Consultancy", type: "clients", openTasksCount: 3, icon: "LC" },
+            { id: 24, name: "Warehouse Properties", type: "properties", openTasksCount: 1, icon: "WP" }
+        ];
+
+        const sampleClients = [
+            { id: 1, name: "John Smith", subtitle: "Last meeting: 2 hours ago", avatar: "JS" },
+            { id: 2, name: "Sarah Johnson", subtitle: "Active client", avatar: "SJ" },
+            { id: 3, name: "Mike Chen", subtitle: "Prospect - Budget approved", avatar: "MC" },
+            { id: 4, name: "Emily Davis", subtitle: "Next meeting: Tomorrow", avatar: "ED" },
+            { id: 5, name: "Robert Wilson", subtitle: "Contract signed", avatar: "RW" },
+            { id: 6, name: "Lisa Anderson", subtitle: "Follow-up needed", avatar: "LA" },
+            { id: 7, name: "David Brown", subtitle: "Proposal sent", avatar: "DB" },
+            { id: 8, name: "Jennifer Taylor", subtitle: "Meeting scheduled", avatar: "JT" },
+            { id: 9, name: "Michael Garcia", subtitle: "Contract pending", avatar: "MG" },
+            { id: 10, name: "Amanda Martinez", subtitle: "Active project", avatar: "AM" },
+            { id: 11, name: "Christopher Lee", subtitle: "Initial consultation", avatar: "CL" },
+            { id: 12, name: "Jessica White", subtitle: "Proposal review", avatar: "JW" },
+            { id: 13, name: "Daniel Harris", subtitle: "Contract negotiation", avatar: "DH" },
+            { id: 14, name: "Ashley Thompson", subtitle: "Project kickoff", avatar: "AT" },
+            { id: 15, name: "Matthew Clark", subtitle: "Status update", avatar: "MC" },
+            { id: 16, name: "Stephanie Lewis", subtitle: "Budget discussion", avatar: "SL" },
+            { id: 17, name: "Andrew Walker", subtitle: "Timeline review", avatar: "AW" },
+            { id: 18, name: "Nicole Hall", subtitle: "Requirements gathering", avatar: "NH" },
+            { id: 19, name: "Kevin Young", subtitle: "Technical review", avatar: "KY" },
+            { id: 20, name: "Rachel King", subtitle: "Final presentation", avatar: "RK" }
+        ];
+
+        let currentPage = 0;
+        let filteredClients = [...sampleClients];
+
+        // Helper function to chunk folders into pages of 6
+        function chunkFoldersIntoPages(folders, pageSize = 6) {
+            const pages = [];
+            for (let i = 0; i < folders.length; i += pageSize) {
+                pages.push(folders.slice(i, i + pageSize));
+            }
+            return pages;
+        }
+
+        // Generate folder pages
+        function renderFolders() {
+            const foldersContainer = document.getElementById('foldersContainer');
+            const pageIndicators = document.getElementById('pageIndicators');
+            
+            const folderPages = chunkFoldersIntoPages(sampleFolders);
+            
+            // Clear existing content
+            foldersContainer.innerHTML = '';
+            pageIndicators.innerHTML = '';
+            
+            if (folderPages.length === 0) {
+                foldersContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📁</div>
+                        <div class="empty-state-message">No folders yet</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render folder pages
+            folderPages.forEach((page, pageIndex) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'folder-page';
+                pageDiv.setAttribute('data-page', pageIndex);
+                
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'folder-grid';
+                
+                page.forEach(folder => {
+                    const folderCard = document.createElement('div');
+                    folderCard.className = 'folder-card';
+                    folderCard.setAttribute('role', 'button');
+                    folderCard.setAttribute('tabindex', '0');
+                    folderCard.setAttribute('aria-label', `Folder, ${folder.name}, ${folder.openTasksCount} open tasks`);
+                    
+                    folderCard.innerHTML = `
+                        <div class="folder-name">${folder.name}</div>
+                        ${folder.openTasksCount > 0 ? `<div class="folder-badge">${folder.openTasksCount}</div>` : ''}
+                    `;
+                    
+                    folderCard.addEventListener('click', () => {
+                        // Haptic feedback simulation
+                        if (navigator.vibrate) {
+                            navigator.vibrate(10);
+                        }
+                        openProjectDetail(folder);
+                    });
+                    
+                    folderCard.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            folderCard.click();
+                        }
+                    });
+                    
+                    gridDiv.appendChild(folderCard);
+                });
+                
+                pageDiv.appendChild(gridDiv);
+                foldersContainer.appendChild(pageDiv);
+            });
+            
+            // Render page indicators
+            for (let i = 0; i < folderPages.length; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = `page-indicator ${i === 0 ? 'active' : ''}`;
+                indicator.setAttribute('aria-label', `Page ${i + 1} of ${folderPages.length}`);
+                pageIndicators.appendChild(indicator);
+            }
+            
+            // Add scroll event listener for page indicators
+            foldersContainer.addEventListener('scroll', updatePageIndicators);
+        }
+
+        // Update page indicators based on scroll position
+        function updatePageIndicators() {
+            const container = document.getElementById('foldersContainer');
+            const indicators = document.querySelectorAll('.page-indicator');
+            const scrollLeft = container.scrollLeft;
+            const containerWidth = container.clientWidth;
+            const currentPageIndex = Math.round(scrollLeft / containerWidth);
+            
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentPageIndex);
+            });
+            
+            currentPage = currentPageIndex;
+        }
+
+        // Render clients list
+        function renderClients() {
+            const clientsList = document.getElementById('clientsList');
+            
+            if (filteredClients.length === 0) {
+                clientsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-message">No matching clients</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            clientsList.innerHTML = '';
+            
+            filteredClients.forEach(client => {
+                const clientRow = document.createElement('div');
+                clientRow.className = 'client-row';
+                clientRow.setAttribute('role', 'button');
+                clientRow.setAttribute('tabindex', '0');
+                clientRow.setAttribute('aria-label', `Client, ${client.name}${client.subtitle ? `, ${client.subtitle}` : ''}`);
+                
+                clientRow.innerHTML = `
+                    <div class="client-avatar">${client.avatar}</div>
+                    <div class="client-info">
+                        <div class="client-name">${client.name}</div>
+                        <div class="client-subtitle">${client.subtitle}</div>
+                    </div>
+                    <div class="client-chevron">›</div>
+                `;
+                
+                clientRow.addEventListener('click', () => {
+                    // Haptic feedback simulation
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                    openClientDetail(client);
+                });
+                
+                clientRow.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        clientRow.click();
+                    }
+                });
+                
+                clientsList.appendChild(clientRow);
+            });
+            
+            // Add fade-in animation to client rows after rendering
+            setTimeout(() => {
+                const clientRows = document.querySelectorAll('.client-row');
+                clientRows.forEach((row, index) => {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(40px)';
+                    setTimeout(() => {
+                        row.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, index * 80);
+                });
+            }, 50);
+        }
+
+        // Search clients
+        function searchClients() {
+            const searchTerm = document.getElementById('clientsSearch').value.toLowerCase();
+            filteredClients = sampleClients.filter(client => 
+                client.name.toLowerCase().includes(searchTerm) ||
+                (client.subtitle && client.subtitle.toLowerCase().includes(searchTerm))
+            );
+            renderClients();
+        }
+
+        // Navigation functions
+        function openProjectDetail(folder) {
+            alert(`Opening project detail for: ${folder.name}\nOpen tasks: ${folder.openTasksCount}`);
+            // In a real app, this would navigate to ProjectDetailView(folder:)
+        }
+
+        function openClientDetail(client) {
+            // Navigate to client detail page with client data
+            const params = new URLSearchParams({
+                id: client.id,
+                name: client.name,
+                subtitle: client.subtitle
+            });
+            window.location.href = `notebuddy_prototype_client_detail.html?${params.toString()}`;
+        }
+
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            renderFolders();
+            renderClients();
+            
+            // Add search functionality
+            document.getElementById('clientsSearch').addEventListener('input', searchClients);
+            
+            // Add keyboard navigation support
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    const foldersContainer = document.getElementById('foldersContainer');
+                    const containerWidth = foldersContainer.clientWidth;
+                    const currentScroll = foldersContainer.scrollLeft;
+                    
+                    if (e.key === 'ArrowLeft' && currentScroll > 0) {
+                        foldersContainer.scrollTo({
+                            left: currentScroll - containerWidth,
+                            behavior: 'smooth'
+                        });
+                    } else if (e.key === 'ArrowRight' && currentScroll < foldersContainer.scrollWidth - containerWidth) {
+                        foldersContainer.scrollTo({
+                            left: currentScroll + containerWidth,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+            
+            // Add fade-in animation to folder cards
+            setTimeout(() => {
+            const folderCards = document.querySelectorAll('.folder-card');
+            folderCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+            }, 100);
+            
+            // Add fade-in animation to client rows
+            setTimeout(() => {
+                const clientRows = document.querySelectorAll('.client-row');
+                clientRows.forEach((row, index) => {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(40px)';
+                    setTimeout(() => {
+                        row.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, index * 80);
+                });
+            }, 300);
+        });
+    </script>
+    
+    <!-- Authentication Check -->
+    <script src="auth-check.js">    </script>
+
+    <!-- Theme Management -->
+    <script>
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Listen for theme changes from settings page
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                if (e.newValue === 'dark') {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

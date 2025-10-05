@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Real Estate Folders</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1c1c1e;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #1c1c1e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #1c1c1e;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #1c1c1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid #48484a;
+            position: absolute;
+            top: 44px;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 150;
+        }
+
+        .header .back-button {
+            color: #02a0d1;
+            text-decoration: none;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .header h1 {
+            font-size: 17px; 
+            font-weight: 600; 
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .header .action-icon {
+            color: #02a0d1;
+            cursor: pointer;
+        }
+
+        .main-content {
+            padding-top: 88px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px;
+        }
+
+        /* Property Overview Card */
+        .property-overview {
+            margin: 16px;
+            background: linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #48484a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .property-overview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #E60026 16%, #FF9500 61%, #FFE5B4 100%);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .property-address {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .property-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .property-type {
+            background: #48484a;
+            color: #02a0d1;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .property-status {
+            background: #2c2c2e;
+            color: #a1a1a6;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            border: 1px solid #48484a;
+        }
+
+        .property-price {
+            font-size: 16px;
+            font-weight: 600;
+            color: #02a0d1;
+        }
+
+        /* Sections Container */
+        .sections-container {
+            margin: 0 16px;
+        }
+
+        .section {
+            background: #2c2c2e;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #48484a;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 16px;
+            border-bottom: 1px solid #48484a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            fill: #02a0d1;
+        }
+
+        .section-content {
+            padding: 16px;
+        }
+
+        /* Meetings Section */
+        .meeting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #48484a;
+        }
+
+        .meeting-item:last-child {
+            border-bottom: none;
+        }
+
+        .meeting-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+        }
+
+        .meeting-info p {
+            font-size: 12px;
+            color: #a1a1a6;
+            margin: 0;
+        }
+
+        .meeting-status {
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .meeting-status.upcoming {
+            background: rgba(255, 130, 34, 0.2);
+            color: #02a0d1;
+        }
+
+        .meeting-status.completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        /* Tasks Panel */
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #48484a;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-priority {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .task-priority.high {
+            background: #ff3b30;
+        }
+
+        .task-priority.medium {
+            background: #02a0d1;
+        }
+
+        .task-priority.low {
+            background: #a1a1a6;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+        }
+
+        .task-description {
+            font-size: 12px;
+            color: #a1a1a6;
+            margin: 0;
+        }
+
+        /* Document Vault */
+        .document-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #48484a;
+        }
+
+        .document-item:last-child {
+            border-bottom: none;
+        }
+
+        .document-icon {
+            width: 32px;
+            height: 32px;
+            background: #48484a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .document-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: #02a0d1;
+        }
+
+        .document-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+        }
+
+        .document-info p {
+            font-size: 12px;
+            color: #a1a1a6;
+            margin: 0;
+        }
+
+        /* Contacts Panel */
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #48484a;
+        }
+
+        .contact-item:last-child {
+            border-bottom: none;
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #E60026 16%, #FF9500 61%, #FFE5B4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .contact-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+        }
+
+        .contact-info p {
+            font-size: 12px;
+            color: #a1a1a6;
+            margin: 0;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .contact-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #48484a;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .contact-action svg {
+            width: 16px;
+            height: 16px;
+            fill: #02a0d1;
+        }
+
+        /* Calendar Integration */
+        .calendar-event {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #48484a;
+        }
+
+        .calendar-event:last-child {
+            border-bottom: none;
+        }
+
+        .event-time {
+            background: #48484a;
+            color: #02a0d1;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-right: 12px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .event-details h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+        }
+
+        .event-details p {
+            font-size: 12px;
+            color: #a1a1a6;
+            margin: 0;
+        }
+
+        /* Add New Buttons */
+        .add-button {
+            background: linear-gradient(135deg, #E60026 16%, #FF9500 61%, #FFE5B4 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .add-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background-color: rgba(44, 44, 46, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 6px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #a1a1a6;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #E60026 16%, #FF9500 61%, #FFE5B4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-top: -20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .fab.active-fab {
+             box-shadow: 0 0 0 3px white, 0 0 0 5px #02a0d1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #a1a1a6;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            fill: #48484a;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 0 8px 0;
+            color: #ffffff;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        
+        <div class="header">
+            <a href="home.html" class="back-button">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </a>
+            <h1>Real Estate Folders</h1>
+            <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Property Overview Card -->
+            <div class="property-overview">
+                <div class="property-address">123 Oak Street, Downtown</div>
+                <div class="property-details">
+                    <div class="property-type">Single Family</div>
+                    <div class="property-status">Active Listing</div>
+                </div>
+                <div class="property-price">$850,000</div>
+            </div>
+
+            <div class="sections-container">
+                <!-- Meetings Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+                            </svg>
+                            Client Meetings
+                        </div>
+                        <button class="add-button">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Add
+                        </button>
+                    </div>
+                    <div class="section-content">
+                        <div class="meeting-item">
+                            <div class="meeting-info">
+                                <h4>Initial Consultation</h4>
+                                <p>Dec 15, 2024 • 2:00 PM</p>
+                            </div>
+                            <div class="meeting-status completed">Completed</div>
+                        </div>
+                        <div class="meeting-item">
+                            <div class="meeting-info">
+                                <h4>Property Showing</h4>
+                                <p>Dec 20, 2024 • 10:00 AM</p>
+                            </div>
+                            <div class="meeting-status upcoming">Upcoming</div>
+                        </div>
+                        <div class="meeting-item">
+                            <div class="meeting-info">
+                                <h4>Contract Review</h4>
+                                <p>Dec 22, 2024 • 3:00 PM</p>
+                            </div>
+                            <div class="meeting-status upcoming">Upcoming</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Panel -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                            </svg>
+                            Tasks & Action Items
+                        </div>
+                        <button class="add-button">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Add
+                        </button>
+                    </div>
+                    <div class="section-content">
+                        <div class="task-item">
+                            <div class="task-priority high"></div>
+                            <div class="task-content">
+                                <div class="task-title">Review Purchase Agreement</div>
+                                <div class="task-description">Urgent contract review due tomorrow</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-priority medium"></div>
+                            <div class="task-content">
+                                <div class="task-title">Follow up with Buyer</div>
+                                <div class="task-description">Check on financing approval status</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <div class="task-priority low"></div>
+                            <div class="task-content">
+                                <div class="task-title">Market Analysis Update</div>
+                                <div class="task-description">Long-term prospecting research</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Vault -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
+                            Document Vault
+                        </div>
+                        <button class="add-button">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Upload
+                        </button>
+                    </div>
+                    <div class="section-content">
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                            </div>
+                            <div class="document-info">
+                                <h4>Purchase Agreement.pdf</h4>
+                                <p>Contract • 2.3 MB • Dec 10, 2024</p>
+                            </div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,8H18V10H6V8M6,12H16V14H6V12Z"/>
+                                </svg>
+                            </div>
+                            <div class="document-info">
+                                <h4>Property Brochure.pdf</h4>
+                                <p>Marketing • 1.8 MB • Dec 8, 2024</p>
+                            </div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,8H18V10H6V8M6,12H16V14H6V12Z"/>
+                                </svg>
+                            </div>
+                            <div class="document-info">
+                                <h4>Property Photos.zip</h4>
+                                <p>Images • 15.2 MB • Dec 5, 2024</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contacts Panel -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Key Contacts
+                        </div>
+                        <button class="add-button">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Add
+                        </button>
+                    </div>
+                    <div class="section-content">
+                        <div class="contact-item">
+                            <div class="contact-avatar">JS</div>
+                            <div class="contact-info">
+                                <h4>John Smith (Seller)</h4>
+                                <p>Owner • (555) 123-4567</p>
+                            </div>
+                            <div class="contact-actions">
+                                <button class="contact-action">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
+                                    </svg>
+                                </button>
+                                <button class="contact-action">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4M20,8L12,13L4,8V6L12,11L20,6V8Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-avatar">MJ</div>
+                            <div class="contact-info">
+                                <h4>Maria Johnson (Buyer)</h4>
+                                <p>Prospective Buyer • (555) 987-6543</p>
+                            </div>
+                            <div class="contact-actions">
+                                <button class="contact-action">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
+                                    </svg>
+                                </button>
+                                <button class="contact-action">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4M20,8L12,13L4,8V6L12,11L20,6V8Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-avatar">AN</div>
+                            <div class="contact-info">
+                                <h4>Attorney Nancy Davis</h4>
+                                <p>Notary • (555) 456-7890</p>
+                            </div>
+                            <div class="contact-actions">
+                                <button class="contact-action">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
+                                    </svg>
+                                </button>
+                                <button class="contact-action">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4M20,8L12,13L4,8V6L12,11L20,6V8Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Integration -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+                            </svg>
+                            Upcoming Events
+                        </div>
+                        <button class="add-button">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Add
+                        </button>
+                    </div>
+                    <div class="section-content">
+                        <div class="calendar-event">
+                            <div class="event-time">Dec 20<br>10:00 AM</div>
+                            <div class="event-details">
+                                <h4>Property Showing</h4>
+                                <p>Client walkthrough with Maria Johnson</p>
+                            </div>
+                        </div>
+                        <div class="calendar-event">
+                            <div class="event-time">Dec 22<br>3:00 PM</div>
+                            <div class="event-details">
+                                <h4>Contract Review</h4>
+                                <p>Meeting with attorney Nancy Davis</p>
+                            </div>
+                        </div>
+                        <div class="calendar-event">
+                            <div class="event-time">Dec 25<br>2:00 PM</div>
+                            <div class="event-details">
+                                <h4>Offer Deadline</h4>
+                                <p>Final offer submission deadline</p>
+                            </div>
+                        </div>
+                        <div class="calendar-event">
+                            <div class="event-time">Dec 28<br>11:00 AM</div>
+                            <div class="event-details">
+                                <h4>Signing Appointment</h4>
+                                <p>Final contract signing at office</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </a>
+            <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Calendar
+            </a>
+            <div class="fab-container">
+                <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
+            </div>
+            <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Summaries
+            </a>
+            <a href="notebuddy_prototype_real_estate_folder.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                </svg>
+                Real Estate
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Enable touch interactions
+        document.querySelectorAll(".nav-item, .fab, .back-button, .add-button, .contact-action").forEach(item => {
+            item.addEventListener("touchstart", function() {}); // Enables :active state on touch
+        });
+
+        // Add click handlers for demo purposes
+        document.querySelectorAll('.add-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Add functionality - This would open a form to add new items.');
+            });
+        });
+
+        document.querySelectorAll('.contact-action').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const action = button.querySelector('svg').getAttribute('viewBox').includes('phone') ? 'Call' : 'Email';
+                alert(`${action} functionality - This would initiate a call or open email client.`);
+            });
+        });
+
+        document.querySelectorAll('.meeting-item, .task-item, .document-item, .calendar-event').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Item details - This would open detailed view or edit form.');
+            });
+        });
+    </script>
+</body>
+</html>

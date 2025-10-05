@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Properties</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1c1c1e; /* Dark background for the area outside the app frame */
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            background-color: #1c1c1e; /* Dark background, Apple-like */
+            color: #ffffff; /* White text for dark mode */
+            display: flex;
+            flex-direction: column;
+            height: 812px; /* iPhone X height */
+            width: 375px; /* iPhone X width */
+            overflow: hidden; /* Prevent scrolling for the main shell */
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            position: relative; /* For positioning status bar and nav bar */
+            box-sizing: border-box;
+        }
+
+
+        .status-bar-placeholder {
+            height: 44px; /* Approximate iOS status bar height */
+            background-color: #1c1c1e;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #1c1c1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 44px;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .header .back-button {
+            color: #02a0d1;
+            font-size: 24px;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 5px;
+        }
+
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+        }
+        
+        .header .add-property-btn {
+            color: #02a0d1;
+            font-size: 28px; 
+            font-weight: 300;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 5px;
+        }
+
+        .main-content {
+            padding-top: 44px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px; 
+            box-sizing: border-box;
+        }
+        
+        .property-tabs {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 16px;
+            background-color: #1c1c1e;
+            border-bottom: 0.5px solid #48484a;
+            position: sticky;
+            top: 44px;
+            z-index: 95;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .property-tab {
+            font-size: 15px;
+            font-weight: 500;
+            color: #a1a1a6; 
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            flex-grow: 1;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .property-tab.active {
+            color: white;
+        }
+        
+        .property-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .property-tab.active::after {
+            width: 80%;
+        }
+
+        .property-list {
+            padding: 16px;
+        }
+
+        .property-card {
+            background-color: #2c2c2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #48484a;
+        }
+
+        .property-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #02a0d1;
+        }
+
+        .property-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .property-address {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .property-type {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .property-type.commercial {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        .property-type.residential {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        .property-type.office {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        .property-type.industrial {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        .property-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #a1a1a6;
+            margin-bottom: 8px;
+        }
+
+        .property-price {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .property-specs {
+            font-size: 13px;
+            color: #a1a1a6;
+            margin-bottom: 8px;
+        }
+
+        .property-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.available {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+        }
+
+        .status-indicator.occupied {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+        }
+
+        .status-indicator.sold {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+        }
+
+        .status-indicator.pending {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #48484a;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #48484a;
+            border-radius: 8px;
+            background-color: #3a3a3c;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #48484a;
+            border-color: #02a0d1;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+            border-color: transparent;
+        }
+
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #c1001a 16%, #e6731a 61%, #f5c97a 100%);
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px; /* iOS tab bar height with home indicator */
+            background-color: rgba(44, 44, 46, 0.94); /* Dark translucent background */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start; /* Align items to top for icon + text */
+            padding-top: 6px; /* Padding for icons */
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #a1a1a6; /* Default icon/text color for dark mode */
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #02a0d1; /* Gradient start for active, or use a solid accent */
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: -20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+        .fab.active-fab {
+             box-shadow: 0 0 0 3px white, 0 0 0 5px #02a0d1;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        <div class="header">
+            <a href="notebuddy_prototype_folder_view.html" class="back-button">←</a>
+            <h1>Properties</h1>
+            <a href="#" class="add-property-btn" onclick="showAddPropertyModal()">+</a>
+        </div>
+
+        <div class="main-content">
+            <div class="property-tabs">
+                <div class="property-tab active" onclick="switchPropertyTab(this, 'all')">All Properties</div>
+                <div class="property-tab" onclick="switchPropertyTab(this, 'residential')">Residential</div>
+                <div class="property-tab" onclick="switchPropertyTab(this, 'commercial')">Commercial</div>
+            </div>
+            
+            <div class="property-list" id="propertyListContainer">
+                <!-- Property 1 -->
+                <div class="property-card" data-property-type="commercial" onclick="viewProperty(this)">
+                    <div class="property-header">
+                        <h4 class="property-address">123 Main Street, Downtown</h4>
+                        <span class="property-type commercial">Commercial</span>
+                    </div>
+                    <div class="property-details">
+                        <span class="property-price">$2,500,000</span>
+                        <span>5,000 sq ft</span>
+                    </div>
+                    <div class="property-specs">3 floors • 12 offices • 2 conference rooms</div>
+                    <div class="property-status">
+                        <div class="status-indicator available"></div>
+                        <span>Available for lease</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); scheduleViewing(this)">Schedule Viewing</button>
+                        <button class="action-btn primary" onclick="event.stopPropagation(); contactAgent(this)">Contact Agent</button>
+                    </div>
+                </div>
+
+                <!-- Property 2 -->
+                <div class="property-card" data-property-type="residential" onclick="viewProperty(this)">
+                    <div class="property-header">
+                        <h4 class="property-address">456 Oak Avenue, Suburbs</h4>
+                        <span class="property-type residential">Residential</span>
+                    </div>
+                    <div class="property-details">
+                        <span class="property-price">$850,000</span>
+                        <span>2,200 sq ft</span>
+                    </div>
+                    <div class="property-specs">4 bedrooms • 3 bathrooms • 2-car garage</div>
+                    <div class="property-status">
+                        <div class="status-indicator pending"></div>
+                        <span>Sale pending</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); scheduleViewing(this)">Schedule Viewing</button>
+                        <button class="action-btn primary" onclick="event.stopPropagation(); contactAgent(this)">Contact Agent</button>
+                    </div>
+                </div>
+
+                <!-- Property 3 -->
+                <div class="property-card" data-property-type="commercial" onclick="viewProperty(this)">
+                    <div class="property-header">
+                        <h4 class="property-address">789 Business Plaza, Midtown</h4>
+                        <span class="property-type office">Office</span>
+                    </div>
+                    <div class="property-details">
+                        <span class="property-price">$1,200,000</span>
+                        <span>3,500 sq ft</span>
+                    </div>
+                    <div class="property-specs">2 floors • 8 offices • 1 reception area</div>
+                    <div class="property-status">
+                        <div class="status-indicator occupied"></div>
+                        <span>Currently occupied</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); scheduleViewing(this)">Schedule Viewing</button>
+                        <button class="action-btn primary" onclick="event.stopPropagation(); contactAgent(this)">Contact Agent</button>
+                    </div>
+                </div>
+
+                <!-- Property 4 -->
+                <div class="property-card" onclick="viewProperty(this)">
+                    <div class="property-header">
+                        <h4 class="property-address">321 Industrial Way, Port District</h4>
+                        <span class="property-type industrial">Industrial</span>
+                    </div>
+                    <div class="property-details">
+                        <span class="property-price">$3,800,000</span>
+                        <span>15,000 sq ft</span>
+                    </div>
+                    <div class="property-specs">Warehouse • Loading dock • Office space</div>
+                    <div class="property-status">
+                        <div class="status-indicator available"></div>
+                        <span>Available for lease</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); scheduleViewing(this)">Schedule Viewing</button>
+                        <button class="action-btn primary" onclick="event.stopPropagation(); contactAgent(this)">Contact Agent</button>
+                    </div>
+                </div>
+
+                <!-- Property 5 -->
+                <div class="property-card" onclick="viewProperty(this)">
+                    <div class="property-header">
+                        <h4 class="property-address">555 Luxury Towers, Waterfront</h4>
+                        <span class="property-type residential">Residential</span>
+                    </div>
+                    <div class="property-details">
+                        <span class="property-price">$1,500,000</span>
+                        <span>3,000 sq ft</span>
+                    </div>
+                    <div class="property-specs">Penthouse • 3 bedrooms • 3 bathrooms • Rooftop terrace</div>
+                    <div class="property-status">
+                        <div class="status-indicator sold"></div>
+                        <span>Sold</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="action-btn" onclick="event.stopPropagation(); viewDetails(this)">View Details</button>
+                        <button class="action-btn primary" onclick="event.stopPropagation(); contactAgent(this)">Contact Agent</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </a>
+            <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Calendar
+            </a>
+            <div class="fab-container">
+                <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
+            </div>
+            <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Summaries
+            </a>
+            <a href="notebuddy_prototype_folder_view.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                </svg>
+                Folders
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Property view functionality
+        function viewProperty(propertyElement) {
+            const address = propertyElement.querySelector('.property-address').textContent;
+            alert(`Viewing property details: ${address}`);
+        }
+
+        // Property action functions
+        function scheduleViewing(button) {
+            const propertyCard = button.closest('.property-card');
+            const address = propertyCard.querySelector('.property-address').textContent;
+            alert(`Scheduling viewing for: ${address}`);
+        }
+
+        function contactAgent(button) {
+            const propertyCard = button.closest('.property-card');
+            const address = propertyCard.querySelector('.property-address').textContent;
+            alert(`Contacting agent for: ${address}`);
+        }
+
+        function viewDetails(button) {
+            const propertyCard = button.closest('.property-card');
+            const address = propertyCard.querySelector('.property-address').textContent;
+            alert(`Viewing detailed information for: ${address}`);
+        }
+
+        // Add property modal (placeholder)
+        function showAddPropertyModal() {
+            alert('Add new property functionality would be implemented here');
+        }
+
+        // Switch between property tabs
+        function switchPropertyTab(selectedTab, tabId) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.property-tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to selected tab
+            selectedTab.classList.add('active');
+            
+            // Filter properties based on tab
+            const propertyCards = document.querySelectorAll('.property-card');
+            propertyCards.forEach(card => {
+                const propertyType = card.getAttribute('data-property-type') || 'residential';
+                if (tabId === 'all' || propertyType === tabId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Load saved properties from localStorage
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedProperties = JSON.parse(localStorage.getItem('notebuddy_properties') || '[]');
+            const container = document.getElementById('propertyListContainer');
+            
+            if (savedProperties.length > 0) {
+                savedProperties.forEach(property => {
+                    const div = document.createElement('div');
+                    div.className = 'property-card';
+                    div.onclick = function() { viewProperty(this); };
+
+                    div.innerHTML = `
+                        <div class="property-header">
+                            <h4 class="property-address">${property.address}</h4>
+                            <span class="property-type ${property.type.toLowerCase()}">${property.type}</span>
+                        </div>
+                        <div class="property-details">
+                            <span class="property-price">${property.price}</span>
+                            <span>${property.size}</span>
+                        </div>
+                        <div class="property-specs">${property.specs}</div>
+                        <div class="property-status">
+                            <div class="status-indicator ${property.status}"></div>
+                            <span>${property.statusText}</span>
+                        </div>
+                        <div class="property-actions">
+                            <button class="action-btn" onclick="event.stopPropagation(); scheduleViewing(this)">Schedule Viewing</button>
+                            <button class="action-btn primary" onclick="event.stopPropagation(); contactAgent(this)">Contact Agent</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            // Touch feedback support
+            document.querySelectorAll(".nav-item, .fab, .add-property-btn, .property-card, .action-btn").forEach(item => {
+                item.addEventListener("touchstart", () => {});
+            });
+        });
+    </script>
+    
+    <!-- Authentication Check -->
+    <script src="auth-check.js"></script>
+</body>
+</html>

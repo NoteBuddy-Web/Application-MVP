@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Settings</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode {
+            background-color: #1c1c1e;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #ffffff;
+            color: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .app-frame {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #ffffff;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        body.dark-mode .status-bar-placeholder {
+            background-color: #1c1c1e;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #ffffff; 
+            display: flex;
+            justify-content: center; /* Center title */
+            align-items: center;
+            position: absolute;
+            top: 44px;
+            width: 100%;
+            left: 0;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        body.dark-mode .header {
+            background-color: #1c1c1e;
+        }
+
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0;
+            color: #1c1c1e;
+        }
+
+        body.dark-mode .header h1 {
+            color: #ffffff;
+        }
+
+        .main-content {
+            padding-top: 88px; /* Status bar + Header */
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px; /* Account for bottom nav bar */
+            box-sizing: border-box;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode .main-content {
+            background-color: #1c1c1e;
+        }
+        
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            background-color: #ffffff;
+        }
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #02a0d1; /* Gradient start */
+            background-image: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1c1c1e;
+        }
+        .profile-email {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+
+        .settings-group {
+            margin: 20px 16px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden; /* To clip border lines properly */
+            border: 0.5px solid #e5e5e7;
+        }
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 0.5px solid #e5e5e7;
+            cursor: pointer;
+            font-size: 16px;
+            color: #1c1c1e;
+        }
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+        .settings-item:active {
+            background-color: #f2f2f7;
+        }
+        .settings-item .item-label {
+            display: flex;
+            align-items: center;
+        }
+        .settings-item .item-icon {
+            width: 22px;
+            height: 22px;
+            margin-right: 12px;
+            fill: #02a0d1;
+        }
+        .settings-item .item-value {
+            color: #8e8e93;
+        }
+        .settings-item .chevron-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: #8e8e93;
+        }
+
+        .logout-button-container {
+            margin: 30px 16px;
+        }
+        .logout-button {
+            background-color: #ffffff;
+            color: #ff3b30; /* Apple red for destructive actions */
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+        .logout-button:active {
+            background-color: #f2f2f7;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 6px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-top: -20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+        .fab.active-fab {
+             box-shadow: 0 0 0 3px white, 0 0 0 5px #02a0d1; /* Active state for FAB */
+        }
+
+        /* Theme Selector Popup Styles */
+        .theme-selector-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .theme-selector-popup {
+            background-color: #ffffff;
+            border-radius: 16px;
+            width: 335px;
+            max-width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.3s ease-out;
+            border: 1px solid #e5e5e7;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .theme-selector-header {
+            padding: 20px 20px 16px 20px;
+            border-bottom: 0.5px solid #e5e5e7;
+            text-align: center;
+        }
+
+        .theme-selector-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1c1c1e;
+        }
+
+        .theme-options {
+            padding: 8px 0;
+        }
+
+        .theme-option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            position: relative;
+        }
+
+        .theme-option:hover {
+            background-color: #f5f5f7;
+        }
+
+        .theme-option:active {
+            background-color: #e5e5e7;
+        }
+
+        .theme-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .light-theme-icon {
+            color: #f5a623;
+        }
+
+        .dark-theme-icon {
+            color: #a1a1a6;
+        }
+
+        .theme-label {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .theme-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1c1c1e;
+            margin-bottom: 2px;
+        }
+
+        .theme-description {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+
+        .theme-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #02a0d1;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .theme-check.active {
+            display: flex;
+        }
+
+        .theme-selector-cancel {
+            width: 100%;
+            padding: 16px;
+            background-color: #f2f2f7;
+            border: none;
+            border-top: 0.5px solid #e5e5e7;
+            border-radius: 0 0 16px 16px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #02a0d1;
+            cursor: pointer;
+        }
+
+        .theme-selector-cancel:active {
+            background-color: #e5e5e7;
+        }
+
+        /* Light Mode Styles */
+        body:not(.dark-mode) {
+            background-color: #ffffff;
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .app-frame {
+            background-color: #ffffff;
+            color: #1c1c1e;
+            border: 1px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .status-bar-placeholder {
+            background-color: #ffffff;
+        }
+
+        body:not(.dark-mode) .header {
+            background-color: #ffffff;
+            border-bottom: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .header h1 {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .settings-group {
+            background-color: #ffffff;
+            border: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .settings-item {
+            border-bottom: 0.5px solid #f2f2f7;
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .settings-item:active {
+            background-color: #f2f2f7;
+        }
+
+        body:not(.dark-mode) .settings-item .item-icon {
+            fill: #8e8e93;
+        }
+
+        body:not(.dark-mode) .logout-button {
+            background-color: #ffffff;
+            color: #ff453a;
+            border: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .logout-button:active {
+            background-color: #f2f2f7;
+        }
+
+        body:not(.dark-mode) .bottom-nav {
+            background-color: rgba(255, 255, 255, 0.94);
+            border-top: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .nav-item {
+            color: #8e8e93;
+        }
+
+        body:not(.dark-mode) .nav-item.active {
+            color: #02a0d1;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #1c1c1e;
+            color: #ffffff;
+        }
+
+
+        body.dark-mode .header h1 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .profile-header {
+            background-color: #1c1c1e;
+        }
+
+        body.dark-mode .profile-name {
+            color: #ffffff;
+        }
+
+        body.dark-mode .profile-email {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .settings-group {
+            background-color: #1c1c1e;
+            border: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .settings-item {
+            border-bottom: 0.5px solid #38383a;
+            color: #ffffff;
+        }
+
+        body.dark-mode .settings-item:active {
+            background-color: #3a3a3c;
+        }
+
+        body.dark-mode .settings-item .item-icon {
+            fill: #a1a1a6;
+        }
+
+        body.dark-mode .settings-item .item-value {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .settings-item .chevron-icon svg {
+            fill: #a1a1a6;
+        }
+
+        body.dark-mode .logout-button {
+            background-color: #2c2c2e;
+            color: #ff453a;
+            border: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .logout-button:active {
+            background-color: #3a3a3c;
+        }
+
+        body.dark-mode .bottom-nav {
+            background-color: rgba(44, 44, 46, 0.94);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+        }
+
+        body.dark-mode .nav-item {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .nav-item.active {
+            color: #02a0d1;
+        }
+
+        body.dark-mode .theme-selector-popup {
+            background-color: #2c2c2e;
+            border: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .theme-selector-header {
+            border-bottom: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .theme-selector-header h3 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .theme-option:hover {
+            background-color: #3a3a3c;
+        }
+
+        body.dark-mode .theme-option:active {
+            background-color: #48484a;
+        }
+
+        body.dark-mode .theme-name {
+            color: #ffffff;
+        }
+
+        body.dark-mode .theme-description {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .theme-selector-cancel {
+            background-color: #3a3a3c;
+            border-top: 0.5px solid #38383a;
+            color: #02a0d1;
+        }
+
+        body.dark-mode .theme-selector-cancel:active {
+            background-color: #48484a;
+        }
+
+        /* Account Details Popup Styles */
+        .account-details-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .account-details-popup {
+            background: linear-gradient(135deg, #2c2c2e 0%, #3a3a3c 100%);
+            border-radius: 16px;
+            width: 335px;
+            max-width: 90%;
+            max-height: 80%;
+            border: 2px solid rgba(255, 130, 34, 0.2);
+            position: relative;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+
+
+        .account-details-header {
+            padding: 20px 20px 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-details-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .close-button:hover {
+            background-color: #f5f5f7;
+        }
+
+        .close-button svg {
+            width: 20px;
+            height: 20px;
+            fill: #6c6c70;
+        }
+
+        .account-info-section {
+            padding: 20px;
+            background-color: #2c2c2e;
+        }
+
+        .account-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .account-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            color: white;
+            font-weight: 600;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .account-details h4 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .account-email {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            color: #a1a1a6;
+        }
+
+        .account-plan {
+            margin: 0;
+            font-size: 14px;
+            color: #02a0d1;
+            font-weight: 500;
+        }
+
+        .usage-section {
+            padding: 20px;
+            background-color: #2c2c2e;
+            position: relative;
+        }
+
+        .usage-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 130, 34, 0.3) 50%, transparent 100%);
+        }
+
+        .section-title {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .usage-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .usage-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .usage-label {
+            font-size: 12px;
+            color: #a1a1a6;
+            margin-bottom: 4px;
+        }
+
+        .usage-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #a1a1a6;
+        }
+
+        .progress-percentage {
+            font-weight: 600;
+            color: #02a0d1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #02a0d1 0%, #dc3dcc 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-minutes {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #a1a1a6;
+        }
+
+        .account-actions {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #2c2c2e;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-button.primary {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        .action-button.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 130, 34, 0.3);
+        }
+
+        .action-button.secondary {
+            background-color: #48484a;
+            color: #ffffff;
+            border: 1px solid #48484a;
+        }
+
+        .action-button.secondary:hover {
+            background-color: #e5e5e7;
+        }
+
+        .action-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .account-details-preferences {
+            width: 100%;
+            padding: 16px;
+            background-color: #f5f5f7;
+            border: none;
+            border-top: 0.5px solid #48484a;
+            border-radius: 0 0 16px 16px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #02a0d1;
+            cursor: pointer;
+        }
+
+        .account-details-preferences:active {
+            background-color: #e5e5e7;
+        }
+
+        /* Light Mode Styles for Account Details */
+        body:not(.dark-mode) .account-details-popup {
+            background-color: #ffffff;
+            border: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .account-details-header h3 {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .close-button svg {
+            fill: #8e8e93;
+        }
+
+        body:not(.dark-mode) .close-button:hover {
+            background-color: #f2f2f7;
+        }
+
+        body:not(.dark-mode) .account-details h4 {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .account-email {
+            color: #8e8e93;
+        }
+
+        body:not(.dark-mode) .section-title {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .usage-value {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .progress-label {
+            color: #8e8e93;
+        }
+
+        body:not(.dark-mode) .progress-bar {
+            background-color: #f2f2f7;
+        }
+
+        body:not(.dark-mode) .action-button.secondary {
+            background-color: #f2f2f7;
+            color: #1c1c1e;
+            border: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .action-button.secondary:hover {
+            background-color: #e5e5e7;
+        }
+
+        body:not(.dark-mode) .account-details-preferences {
+            background-color: #f2f2f7;
+            border-top-color: #e5e5e7;
+        }
+
+        body:not(.dark-mode) .account-details-preferences:active {
+            background-color: #e5e5e7;
+        }
+
+        /* Dark Mode Styles for Account Details */
+        body.dark-mode .account-details-popup {
+            background-color: #2c2c2e;
+            border: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .account-details-header h3 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .close-button svg {
+            fill: #a1a1a6;
+        }
+
+        body.dark-mode .close-button:hover {
+            background-color: #3a3a3c;
+        }
+
+        body.dark-mode .account-details h4 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .account-email {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .section-title {
+            color: #ffffff;
+        }
+
+        body.dark-mode .usage-value {
+            color: #ffffff;
+        }
+
+        body.dark-mode .progress-label {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .progress-bar {
+            background-color: #3a3a3c;
+        }
+
+        body.dark-mode .action-button.secondary {
+            background-color: #3a3a3c;
+            color: #ffffff;
+            border-color: #38383a;
+        }
+
+        body.dark-mode .action-button.secondary:hover {
+            background-color: #48484a;
+        }
+
+        body.dark-mode .account-details-preferences {
+            background-color: #3a3a3c;
+            border-top-color: #38383a;
+            color: #02a0d1;
+        }
+
+        body.dark-mode .account-details-preferences:active {
+            background-color: #48484a;
+        }
+
+        /* Meeting Integration Popup Styles */
+        .meeting-integration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .meeting-integration-popup {
+            background-color: #2c2c2e;
+            border-radius: 16px;
+            width: 335px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .meeting-integration-header {
+            padding: 20px 20px 16px 20px;
+            border-bottom: 0.5px solid #e5e5e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .meeting-integration-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .integration-description {
+            padding: 20px 20px 16px 20px;
+        }
+
+        .integration-description p {
+            margin: 0;
+            font-size: 14px;
+            color: #a1a1a6;
+            line-height: 1.4;
+        }
+
+        .integration-options {
+            padding: 8px 0;
+        }
+
+        .integration-option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .integration-option:hover {
+            background-color: #f5f5f7;
+        }
+
+        .integration-option:active {
+            background-color: #e5e5e7;
+        }
+
+        .integration-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .zoom-icon {
+            background-color: #2D8CFF;
+            color: white;
+        }
+
+        .zoom-icon.connected {
+            background-color: #4CAF50;
+        }
+        
+        .disconnect-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .disconnect-btn:hover {
+            background: #d32f2f;
+        }
+
+        .google-meet-icon {
+            background-color: #00897B;
+            color: white;
+        }
+
+        .teams-icon {
+            background-color: #6264A7;
+            color: white;
+        }
+
+        .integration-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .integration-details {
+            flex: 1;
+        }
+
+        .integration-details h4 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .integration-details p {
+            margin: 0;
+            font-size: 13px;
+            color: #a1a1a6;
+            line-height: 1.3;
+        }
+
+        .integration-status {
+            margin-left: 12px;
+        }
+
+        .status-badge {
+            background-color: #02a0d1;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+
+
+        /* Light Mode Styles for Meeting Integration */
+        body:not(.dark-mode) .meeting-integration-popup {
+            background-color: #ffffff;
+            border: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .meeting-integration-header h3 {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .integration-description p {
+            color: #8e8e93;
+        }
+
+        body:not(.dark-mode) .integration-option:hover {
+            background-color: #f2f2f7;
+        }
+
+        body:not(.dark-mode) .integration-option:active {
+            background-color: #e5e5e7;
+        }
+
+        body:not(.dark-mode) .integration-details h4 {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .integration-details p {
+            color: #8e8e93;
+        }
+
+        body:not(.dark-mode) .integration-description h4 {
+            color: #1c1c1e;
+        }
+
+        /* Dark Mode Styles for Meeting Integration */
+        body.dark-mode .meeting-integration-popup {
+            background-color: #2c2c2e;
+            border: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .meeting-integration-header h3 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .integration-description p {
+            color: #a1a1a6;
+        }
+
+
+        body.dark-mode .integration-option:hover {
+            background-color: #3a3a3c;
+        }
+
+        body.dark-mode .integration-option:active {
+            background-color: #48484a;
+        }
+
+        body.dark-mode .integration-details h4 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .integration-details p {
+            color: #a1a1a6;
+        }
+
+        /* Dark mode styles for CRM section header */
+        body.dark-mode .integration-description h4 {
+            color: #ffffff;
+        }
+
+        /* Support Popup Styles */
+        .support-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .support-popup {
+            background: linear-gradient(135deg, #2c2c2e 0%, #3a3a3c 100%);
+            border-radius: 20px;
+            padding: 0;
+            width: 90%;
+            max-width: 350px;
+            border: 2px solid rgba(255, 130, 34, 0.2);
+            position: relative;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .support-popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #02a0d1 0%, #dc3dcc 100%);
+            border-radius: 20px 20px 0 0;
+        }
+
+        @media (max-width: 375px) {
+            .support-popup {
+                width: 95%;
+                max-width: 320px;
+                margin: 0 10px;
+            }
+        }
+
+        .support-header {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        .support-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .support-header .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .support-header .close-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .support-header .close-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .support-content {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .support-section {
+            margin-bottom: 24px;
+            background: linear-gradient(180deg, rgba(255, 130, 34, 0.02) 0%, transparent 100%);
+            padding: 16px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .support-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 16px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 130, 34, 0.3) 50%, transparent 100%);
+        }
+
+        .support-section h4 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .support-section p {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #a1a1a6;
+        }
+
+        .support-email-link {
+            display: block;
+            color: #02a0d1;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 12px auto;
+            padding: 12px 20px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #e0f0ff;
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .support-email-link:hover {
+            background-color: #e0f0ff;
+        }
+
+        .support-forum-link {
+            display: block;
+            color: #dc3dcc;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 12px auto;
+            padding: 12px 20px;
+            background-color: #fdf0ff;
+            border-radius: 8px;
+            border: 1px solid #f0e0ff;
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .support-forum-link:hover {
+            background-color: #f0e0ff;
+        }
+
+        .support-note {
+            font-size: 12px;
+            color: #a1a1a6;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        .support-topics {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0;
+        }
+
+        .support-topics li {
+            padding: 6px 0;
+            font-size: 14px;
+            color: #a1a1a6;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .support-topics li:before {
+            content: "•";
+            color: #02a0d1;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+
+
+        /* Light Mode Styles for Support Popup */
+        body:not(.dark-mode) .support-popup {
+            background-color: #ffffff;
+            border: 0.5px solid #e5e5e7;
+        }
+
+        body:not(.dark-mode) .support-section h4 {
+            color: #1c1c1e;
+        }
+
+        body:not(.dark-mode) .support-section p {
+            color: #8e8e93;
+        }
+
+        body:not(.dark-mode) .support-topics li {
+            color: #8e8e93;
+        }
+
+        /* Dark Mode Styles for Support Popup */
+        body.dark-mode .support-popup {
+            background-color: #2c2c2e;
+            border: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .support-section h4 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .support-section p {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .support-topics li {
+            color: #a1a1a6;
+        }
+
+
+
+
+
+    </style>
+</head>
+<body>
+    <!-- Authentication Check -->
+    <script src="auth-check.js"></script>
+    
+    <!-- Mock Authentication for Local Development -->
+    <script src="mock-auth.js"></script>
+    
+    <!-- Zoom API Integration -->
+    <script src="zoom-config.js"></script>
+    
+    <script>
+        // Use mock authentication for local development
+        let auth, onAuthStateChanged, signOut;
+        
+        if (window.location.hostname === 'localhost') {
+            // Use mock authentication for local development
+            console.log('Using mock authentication for local development');
+            auth = new MockAuth();
+            auth.initialize();
+            
+            // Mock functions
+            onAuthStateChanged = (auth, callback) => auth.onAuthStateChanged(callback);
+            signOut = (auth) => auth.signOut();
+        } else {
+            // Use real Firebase for production
+            console.log('Using real Firebase authentication');
+            // Load Firebase SDK dynamically for production
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.textContent = `
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+                import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+                import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBeL0jxE1oBdDu9G8BqZge_reFV5GNfedk",
+                    authDomain: "notebuddy-e5370.firebaseapp.com",
+                    projectId: "notebuddy-e5370",
+                    storageBucket: "notebuddy-e5370.firebasestorage.app",
+                    messagingSenderId: "183381311494",
+                    appId: "1:183381311494:web:f574fae1a5554186438387",
+                    measurementId: "G-QBFNCSG9M5"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                const analytics = getAnalytics(app);
+                window.auth = getAuth(app);
+                window.onAuthStateChanged = onAuthStateChanged;
+                window.signOut = signOut;
+            `;
+            document.head.appendChild(script);
+        }
+    </script>
+
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        <div class="header">
+            <h1>Settings</h1>
+        </div>
+
+        <div class="main-content">
+            <div class="profile-header" onclick="alert('Edit Profile - Mock. This would navigate to a profile editing screen.')">
+                <div class="profile-avatar">NB</div> <!-- Placeholder Initials -->
+                <div class="profile-name">User Name</div>
+                <div class="profile-email">user@example.com</div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-item" onclick="showAccountDetails()">
+                    <div class="item-label">
+                        <svg class="item-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        Account
+                    </div>
+                    <div class="chevron-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="alert('Navigate to Subscription - Mock. This would open a sub-page for subscription management.')">
+                    <div class="item-label">
+                        <svg class="item-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                        Subscription
+                    </div>
+                    <div class="item-value">Premium</div>
+                    <div class="chevron-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-item" onclick="alert('Navigate to Notifications - Mock. This would open a sub-page for notification preferences.')">
+                    <div class="item-label">
+                        <svg class="item-icon" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        Notifications
+                    </div>
+                    <div class="chevron-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="showThemeSelector()">
+                     <div class="item-label">
+                        <svg class="item-icon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        Appearance
+                    </div>
+                    <div class="chevron-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-item" onclick="showMeetingIntegration()">
+                     <div class="item-label">
+                        <svg class="item-icon" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                        Meeting Integration
+                    </div>
+                    <div class="chevron-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-item" onclick="showSupportPopup()">
+                     <div class="item-label">
+                        <svg class="item-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                        Help & Support
+                    </div>
+                    <div class="chevron-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="window.open('https://thenotebuddy.com', '_blank')">
+                     <div class="item-label">
+                        <svg class="item-icon" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                        About NoteBuddy
+                    </div>
+                    <div class="chevron-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="logout-button-container">
+                <button class="logout-button" onclick="handleLogout()">Log Out</button>
+            </div>
+
+        </div>
+
+        <!-- Theme Selector Popup -->
+        <div class="theme-selector-overlay" id="theme-selector-overlay">
+            <div class="theme-selector-popup">
+                <div class="theme-selector-header">
+                    <h3>Choose Theme</h3>
+                </div>
+                <div class="theme-options">
+                    <div class="theme-option" onclick="setTheme('light')">
+                        <div class="theme-icon light-theme-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+                            </svg>
+                        </div>
+                        <div class="theme-label">
+                            <span class="theme-name">Light Mode</span>
+                            <span class="theme-description">Clean, bright interface</span>
+                        </div>
+                        <div class="theme-check" id="light-theme-check">✓</div>
+                    </div>
+                    <div class="theme-option" onclick="setTheme('dark')">
+                        <div class="theme-icon dark-theme-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                            </svg>
+                        </div>
+                        <div class="theme-label">
+                            <span class="theme-name">Dark Mode</span>
+                            <span class="theme-description">Easy on the eyes</span>
+                        </div>
+                        <div class="theme-check" id="dark-theme-check">✓</div>
+                    </div>
+                </div>
+                <button class="theme-selector-cancel" onclick="hideThemeSelector()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Account Details Popup -->
+        <div class="account-details-overlay" id="account-details-overlay">
+            <div class="account-details-popup">
+                <div class="account-details-header">
+                    <h3>Account Details</h3>
+                    <button class="close-button" onclick="hideAccountDetails()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="account-info-section">
+                    <div class="account-profile">
+                        <div class="account-avatar">NB</div>
+                        <div class="account-details">
+                            <h4 class="account-name">User Name</h4>
+                            <p class="account-email">user@example.com</p>
+                            <p class="account-plan">Premium Plan</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="usage-section">
+                    <h4 class="section-title">Transcription Usage</h4>
+                    <div class="usage-stats">
+                        <div class="usage-item">
+                            <span class="usage-label">Used This Month</span>
+                            <span class="usage-value">450 minutes</span>
+                        </div>
+                        <div class="usage-item">
+                            <span class="usage-label">Remaining</span>
+                            <span class="usage-value">750 minutes</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Basic Subscription (0-1200 minutes)</span>
+                            <span class="progress-percentage">37.5%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 37.5%"></div>
+                        </div>
+                        <div class="progress-minutes">
+                            <span>0 min</span>
+                            <span>1200 min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="account-actions">
+                    <button class="action-button primary" onclick="upgradePlan()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        Upgrade Plan
+                    </button>
+                    <button class="action-button secondary" onclick="editProfile()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                        Edit Profile
+                    </button>
+                </div>
+
+                <button class="account-details-preferences" onclick="showPreferences()">Preferences</button>
+            </div>
+        </div>
+
+        <!-- Meeting Integration Popup -->
+        <div class="meeting-integration-overlay" id="meeting-integration-overlay">
+            <div class="meeting-integration-popup">
+                <div class="meeting-integration-header">
+                    <h3>Meeting Integration</h3>
+                    <button class="close-button" onclick="hideMeetingIntegration()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="integration-description">
+                    <p>Connect NoteBuddy to your preferred meeting platform for seamless transcription and note-taking in online meetings.</p>
+                </div>
+                <div class="integration-options">
+                    <div class="integration-option" onclick="connectZoom()">
+                        <div class="integration-icon zoom-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 12.17l6.59-6.59L18 7l-8 8z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Zoom</h4>
+                            <p>Connect to Zoom meetings for automatic transcription</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectGoogleMeet()">
+                        <div class="integration-icon google-meet-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 12.17l6.59-6.59L18 7l-8 8z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Google Meet</h4>
+                            <p>Integrate with Google Meet for real-time notes</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectMicrosoftTeams()">
+                        <div class="integration-icon teams-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 12.17l6.59-6.59L18 7l-8 8z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Microsoft Teams</h4>
+                            <p>Sync with Teams for collaborative note-taking</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRM Integration Section -->
+                <div class="integration-description" style="border-top: 0.5px solid #e5e5e5; margin-top: 16px;">
+                    <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #ffffff;">CRM Integration</h4>
+                    <p style="margin: 0;">Sync meeting summaries and action items with your CRM system to keep your customer relationships organized.</p>
+                </div>
+                <div class="integration-options">
+                    <div class="integration-option" onclick="connectSalesforce()">
+                        <div class="integration-icon salesforce-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v-.07zM17.9 17.39c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Salesforce</h4>
+                            <p>Automatically sync meeting notes to Salesforce contacts</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectHubSpot()">
+                        <div class="integration-icon hubspot-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 9h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>HubSpot</h4>
+                            <p>Link meeting summaries to HubSpot deals and contacts</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectPipedrive()">
+                        <div class="integration-icon pipedrive-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Pipedrive</h4>
+                            <p>Export action items and notes to Pipedrive activities</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectCustomCRM()">
+                        <div class="integration-icon custom-crm-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Custom CRM</h4>
+                            <p>Connect to your custom CRM via API integration</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Setup</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Integration Section -->
+                <div class="integration-description" style="border-top: 0.5px solid #e5e5e5; margin-top: 16px;">
+                    <h4 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #ffffff;">Email Integration</h4>
+                    <p style="margin: 0;">Send meeting summaries and action items directly to your email or integrate with your email platform for seamless follow-ups.</p>
+                </div>
+                <div class="integration-options">
+                    <div class="integration-option" onclick="connectOutlook()">
+                        <div class="integration-icon outlook-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Microsoft Outlook</h4>
+                            <p>Send summaries to Outlook and create calendar events</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectGmail()">
+                        <div class="integration-icon gmail-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Gmail</h4>
+                            <p>Automatically email summaries to participants via Gmail</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectAppleMail()">
+                        <div class="integration-icon apple-mail-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zM12 11L4 6h16l-8 5z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Apple Mail</h4>
+                            <p>Send meeting notes directly through Apple Mail</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Connect</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectEmailTemplates()">
+                        <div class="integration-icon email-templates-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>Email Templates</h4>
+                            <p>Customize email templates for different meeting types</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Setup</span>
+                        </div>
+                    </div>
+
+                    <div class="integration-option" onclick="connectSMTP()">
+                        <div class="integration-icon smtp-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-details">
+                            <h4>SMTP Server</h4>
+                            <p>Configure custom SMTP server for email delivery</p>
+                        </div>
+                        <div class="integration-status">
+                            <span class="status-badge">Setup</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Popup -->
+        <div class="support-overlay" id="support-overlay">
+            <div class="support-popup">
+                <div class="support-header">
+                    <h3>Help & Support</h3>
+                    <button class="close-button" onclick="hideSupportPopup()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="support-content">
+                    <div class="support-section">
+                        <h4>Email Support</h4>
+                        <p>For all support inquiries, please contact us directly via email:</p>
+                        <a href="mailto:notebuddy.ai@gmail.com" class="support-email-link">
+                            notebuddy.ai@gmail.com
+                        </a>
+                        <p class="support-note">We typically respond within 24 hours during business days.</p>
+                    </div>
+                    
+                    <div class="support-section">
+                        <h4>Community Forum</h4>
+                        <p>Find answers to common questions and connect with other users:</p>
+                        <a href="####" class="support-forum-link" onclick="showForumComingSoon()">
+                            Visit Community Forum
+                        </a>
+                        <p class="support-note">Our comprehensive forum is coming soon!</p>
+                    </div>
+                    
+                    <div class="support-section">
+                        <h4>What We Can Help With</h4>
+                        <ul class="support-topics">
+                            <li>Account setup and configuration</li>
+                            <li>Meeting transcription issues</li>
+                            <li>Integration problems</li>
+                            <li>Billing and subscription questions</li>
+                            <li>Feature requests and feedback</li>
+                        </ul>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+    <a href="index.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+    </a>
+    <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        Calendar
+    </a>
+    <div class="fab-container">
+        <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+        </button>
+    </div>
+    <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        Summaries
+    </a>
+    <a href="notebuddy_prototype_task_list.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+        </svg>
+        Tasks
+    </a>
+</nav>
+    </div>
+
+    <script>
+        // Global authentication guard - prevents redirects during logout
+        window.authGuard = {
+            isLoggingOut: false,
+            preventRedirects: false,
+            setLoggingOut: function() {
+                this.isLoggingOut = true;
+                this.preventRedirects = true;
+                console.log('🎯 Auth guard: Logout mode activated, preventing all redirects');
+            },
+            reset: function() {
+                this.isLoggingOut = false;
+                this.preventRedirects = false;
+                console.log('🎯 Auth guard: Reset to normal mode');
+            }
+        };
+        
+        // Check authentication state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reset logout flag when page loads
+            window.isLoggingOut = false;
+            
+            // Check if user is coming from logout (don't redirect back)
+            const urlParams = new URLSearchParams(window.location.search);
+            const isLogout = urlParams.get('logout');
+            if (isLogout) {
+                console.log('🎯 User coming from logout, redirecting to login immediately');
+                window.location.replace('index.html');
+                return;
+            }
+            
+            // Check if auth guard is preventing redirects
+            if (window.authGuard && window.authGuard.preventRedirects) {
+                console.log('🎯 Auth guard preventing redirects, staying on page');
+                return;
+            }
+            
+            // Check new session-based authentication first
+            const userSession = sessionStorage.getItem('userAuthenticated');
+            if (userSession === 'true') {
+                console.log('User authenticated via session, updating UI...');
+                const userEmail = localStorage.getItem('userEmail');
+                const userDisplayName = localStorage.getItem('userDisplayName');
+                
+                // Create a mock user object for UI compatibility
+                const mockUser = {
+                    email: userEmail,
+                    displayName: userDisplayName || userEmail
+                };
+                
+                updateUserInterface(mockUser);
+                return;
+            }
+            
+            // Fallback to old auth system if no session
+            if (typeof onAuthStateChanged === 'function' && auth) {
+                // Store the unsubscribe function so we can disable it during logout
+                window.authUnsubscribe = onAuthStateChanged(auth, function(user) {
+                    // Don't interfere if user is actively logging out or auth guard is active
+                    if (window.isLoggingOut || window.authGuard.preventRedirects) {
+                        console.log('🎯 Logout in progress or auth guard active, ignoring auth state change');
+                        return;
+                    }
+                    
+                    if (user) {
+                        // User is signed in, update UI
+                        updateUserInterface(user);
+                    } else {
+                        // User is signed out, redirect to login
+                        console.log('🎯 User signed out, redirecting to login');
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                // No auth system available, redirect to login
+                window.location.href = 'index.html';
+            }
+        });
+
+        function updateUserInterface(user) {
+            // Update profile avatar with user initials
+            const profileAvatar = document.querySelector('.profile-avatar');
+            if (user.displayName) {
+                profileAvatar.textContent = user.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+            } else if (user.email) {
+                profileAvatar.textContent = user.email[0].toUpperCase();
+            }
+            
+            // Update profile name
+            const profileName = document.querySelector('.profile-name');
+            if (profileName) {
+                profileName.textContent = user.displayName || user.email.split('@')[0];
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to log out?')) {
+                console.log('🎯 Starting logout process...');
+                
+                // Activate the global auth guard
+                window.authGuard.setLoggingOut();
+                
+                // Set a flag to prevent auth listener from interfering
+                window.isLoggingOut = true;
+                
+                // Disable the auth state listener completely
+                if (window.authUnsubscribe && typeof window.authUnsubscribe === 'function') {
+                    console.log('🎯 Disabling auth state listener...');
+                    window.authUnsubscribe();
+                }
+                
+                // Clear ALL authentication data immediately
+                sessionStorage.clear();
+                localStorage.removeItem('userAuthenticated');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userDisplayName');
+                localStorage.removeItem('mockAuthUser');
+                localStorage.removeItem('theme');
+                
+                // Set a global logout flag that persists across page loads
+                localStorage.setItem('forceLogout', 'true');
+                localStorage.setItem('logoutTimestamp', Date.now().toString());
+                
+                // Try Firebase signout if available
+                if (window.auth && typeof window.auth.signOut === 'function') {
+                    console.log('🎯 Signing out from Firebase...');
+                    window.auth.signOut().then(() => {
+                        console.log('🎯 Successfully signed out from Firebase');
+                        // Force redirect to login page with logout parameter
+                        window.location.replace('index.html?logout=' + Date.now());
+                    }).catch((error) => {
+                        console.error('🎯 Error signing out from Firebase:', error);
+                        // Fallback: redirect anyway with logout parameter
+                        window.location.replace('index.html?logout=' + Date.now());
+                    });
+                } else {
+                    console.log('🎯 No Firebase auth available, redirecting immediately');
+                    // Force redirect to login page with logout parameter
+                    window.location.replace('index.html?logout=' + Date.now());
+                }
+            }
+        }
+
+        // Touch feedback for clickable items
+        document.querySelectorAll(".profile-header, .settings-item, .logout-button, .nav-item, .fab").forEach(item => {
+            item.addEventListener("touchstart", function() {}); // Enables :active state on touch
+        });
+
+        // Theme management functions
+        function showThemeSelector() {
+            document.getElementById('theme-selector-overlay').style.display = 'flex';
+            updateThemeChecks();
+        }
+
+        function hideThemeSelector() {
+            document.getElementById('theme-selector-overlay').style.display = 'none';
+        }
+
+        function setTheme(theme) {
+            // Remove existing theme classes
+            document.body.classList.remove('dark-mode');
+            
+            // Apply selected theme (default to light mode)
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            // Light mode is the default (no class needed)
+            
+            // Save theme preference
+            localStorage.setItem('theme', theme);
+            
+            // Update theme checks
+            updateThemeChecks();
+            
+            // Hide popup
+            hideThemeSelector();
+        }
+
+        function updateThemeChecks() {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            const lightCheck = document.getElementById('light-theme-check');
+            const darkCheck = document.getElementById('dark-theme-check');
+            
+            // Remove active class from all checks
+            lightCheck.classList.remove('active');
+            darkCheck.classList.remove('active');
+            
+            // Add active class to current theme
+            if (currentTheme === 'light') {
+                lightCheck.classList.add('active');
+            } else if (currentTheme === 'dark') {
+                darkCheck.classList.add('active');
+            }
+        }
+
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            updateThemeChecks();
+        });
+
+        // Close theme selector when clicking outside
+        document.getElementById('theme-selector-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideThemeSelector();
+            }
+        });
+
+        // Account Details functions
+        function showAccountDetails() {
+            document.getElementById('account-details-overlay').style.display = 'flex';
+            updateUsageStats();
+        }
+
+        function hideAccountDetails() {
+            document.getElementById('account-details-overlay').style.display = 'none';
+        }
+
+        function updateUsageStats() {
+            // Mock usage data - in real app this would come from API
+            const usedMinutes = 450;
+            const totalMinutes = 1200;
+            const remainingMinutes = totalMinutes - usedMinutes;
+            const percentage = (usedMinutes / totalMinutes) * 100;
+
+            // Update usage values
+            document.querySelector('.usage-value').textContent = usedMinutes + ' minutes';
+            document.querySelectorAll('.usage-value')[1].textContent = remainingMinutes + ' minutes';
+            
+            // Update progress bar
+            document.querySelector('.progress-percentage').textContent = percentage.toFixed(1) + '%';
+            document.querySelector('.progress-fill').style.width = percentage + '%';
+        }
+
+        function upgradePlan() {
+            alert('Upgrade Plan - This would navigate to a subscription upgrade page in the full app.');
+        }
+
+        function editProfile() {
+            alert('Edit Profile - This would navigate to a profile editing page in the full app.');
+        }
+
+        function showPreferences() {
+            alert('Preferences - This would navigate to a preferences/settings page in the full app.');
+        }
+
+        // Close account details when clicking outside
+        document.getElementById('account-details-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAccountDetails();
+            }
+        });
+
+        // Meeting Integration functions
+        function showMeetingIntegration() {
+            document.getElementById('meeting-integration-overlay').style.display = 'flex';
+        }
+
+        function hideMeetingIntegration() {
+            document.getElementById('meeting-integration-overlay').style.display = 'none';
+        }
+
+        async function connectZoom() {
+            try {
+                console.log('🔗 Starting Zoom integration...');
+                
+                // Check if already connected
+                if (window.zoomBotAPI && window.zoomBotAPI.isZoomConnected()) {
+                    alert('Zoom is already connected! You can disconnect and reconnect if needed.');
+                    return;
+                }
+                
+                // Initialize Zoom API with your credentials
+                // Note: In production, these should be stored securely
+                const clientId = 'YOUR_ZOOM_CLIENT_ID'; // Replace with your actual Client ID
+                const clientSecret = 'YOUR_ZOOM_CLIENT_SECRET'; // Replace with your actual Client Secret
+                
+                if (clientId === 'YOUR_ZOOM_CLIENT_ID') {
+                    alert('Zoom integration requires API credentials. Please contact the administrator to set up Zoom API access.');
+                    return;
+                }
+                
+                // Initialize the API
+                window.zoomBotAPI.initialize(clientId, clientSecret);
+                
+                // Check if we have stored tokens
+                if (window.zoomBotAPI.loadStoredTokens()) {
+                    console.log('✅ Using stored Zoom tokens');
+                    alert('Zoom is already connected! You can now use bot features.');
+                    updateZoomConnectionStatus(true);
+                    return;
+                }
+                
+                // Get authorization URL and redirect
+                const authUrl = window.zoomBotAPI.getAuthorizationUrl();
+                console.log('🔗 Redirecting to Zoom OAuth:', authUrl);
+                
+                // Open OAuth in new window
+                const authWindow = window.open(authUrl, 'zoom_auth', 'width=600,height=700,scrollbars=yes,resizable=yes');
+                
+                // Monitor the auth window
+                const checkClosed = setInterval(() => {
+                    if (authWindow.closed) {
+                        clearInterval(checkClosed);
+                        // Check if connection was successful
+                        if (window.zoomBotAPI.isZoomConnected()) {
+                            updateZoomConnectionStatus(true);
+                            alert('Zoom connected successfully! You can now use bot features.');
+                        } else {
+                            console.log('❌ Zoom connection was cancelled or failed');
+                        }
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Zoom connection error:', error);
+                alert('Failed to connect to Zoom: ' + error.message);
+            }
+        }
+        
+        function disconnectZoom() {
+            if (window.zoomBotAPI) {
+                window.zoomBotAPI.disconnect();
+                updateZoomConnectionStatus(false);
+                alert('Zoom disconnected successfully.');
+            }
+        }
+        
+        function updateZoomConnectionStatus(connected) {
+            const zoomButton = document.querySelector('.integration-option[onclick*="connectZoom"]');
+            if (zoomButton) {
+                if (connected) {
+                    zoomButton.innerHTML = `
+                        <div class="integration-icon zoom-icon connected">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Zoom (Connected)</h4>
+                            <p>Bot can join meetings and record</p>
+                            <button onclick="disconnectZoom()" class="disconnect-btn">Disconnect</button>
+                        </div>
+                    `;
+                } else {
+                    zoomButton.innerHTML = `
+                        <div class="integration-icon zoom-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/>
+                            </svg>
+                        </div>
+                        <div class="integration-info">
+                            <h4>Zoom</h4>
+                            <p>Connect to Zoom meetings for automatic transcription</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function connectGoogleMeet() {
+            alert('Google Meet Integration - This would integrate NoteBuddy with Google Meet for real-time transcription and notes.');
+        }
+
+        function connectMicrosoftTeams() {
+            alert('Microsoft Teams Integration - This would sync NoteBuddy with Teams for collaborative note-taking and transcription.');
+        }
+
+        // CRM Integration functions
+        function connectSalesforce() {
+            alert('Salesforce Integration - This would automatically sync meeting notes and action items to your Salesforce contacts and opportunities.');
+        }
+
+        function connectHubSpot() {
+            alert('HubSpot Integration - This would link meeting summaries to HubSpot deals and contacts, and create follow-up tasks.');
+        }
+
+        function connectPipedrive() {
+            alert('Pipedrive Integration - This would export action items and meeting notes to Pipedrive activities and deal records.');
+        }
+
+        function connectCustomCRM() {
+            alert('Custom CRM Integration - This would allow you to connect NoteBuddy to your custom CRM system via API integration. Contact support for setup assistance.');
+        }
+
+        // Email Integration functions
+        function connectOutlook() {
+            alert('Microsoft Outlook Integration - This would connect NoteBuddy to your Outlook account to automatically send meeting summaries and create calendar events with action items.');
+        }
+
+        function connectGmail() {
+            alert('Gmail Integration - This would integrate with Gmail to automatically email meeting summaries to participants and create follow-up reminders.');
+        }
+
+        function connectAppleMail() {
+            alert('Apple Mail Integration - This would connect to Apple Mail to send meeting notes and summaries directly through your default mail app.');
+        }
+
+        function connectEmailTemplates() {
+            alert('Email Templates - This would allow you to customize email templates for different types of meetings, including summary formats and follow-up structures.');
+        }
+
+        function connectSMTP() {
+            alert('SMTP Server Integration - This would allow you to configure a custom SMTP server for reliable email delivery of meeting summaries and notifications.');
+        }
+
+        // Close meeting integration when clicking outside
+        document.getElementById('meeting-integration-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideMeetingIntegration();
+            }
+        });
+
+        // Support Popup Functions
+        function showSupportPopup() {
+            document.getElementById('support-overlay').style.display = 'flex';
+        }
+
+        function hideSupportPopup() {
+            document.getElementById('support-overlay').style.display = 'none';
+        }
+
+        function showForumComingSoon() {
+            alert('Community Forum - Coming Soon!\n\nOur comprehensive forum with FAQs, tutorials, and community support will be available soon. For now, please use email support at notebuddy.ai@gmail.com');
+        }
+
+        // Close support popup when clicking outside
+        document.getElementById('support-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideSupportPopup();
+            }
+        });
+    </script>
+</body>
+</html>

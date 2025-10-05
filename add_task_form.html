@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Add New Task</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode {
+            background-color: #1c1c1e;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #ffffff;
+            color: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .app-frame {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #ffffff;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        body.dark-mode .status-bar-placeholder {
+            background-color: #1c1c1e;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid #e5e5e7;
+            position: absolute;
+            top: 44px;
+            width: 100%;
+            left: 0;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        body.dark-mode .header {
+            background-color: #1c1c1e;
+            border-bottom: 0.5px solid #48484a;
+        }
+
+        .header .back-button {
+            color: #02a0d1;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .header .save-button {
+            color: #02a0d1;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .main-content {
+            padding-top: 88px; /* Status bar + Header */
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .form-section {
+            padding: 16px;
+            border-bottom: 0.5px solid #48484a;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c6c70;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #48484a;
+            border-radius: 8px;
+            background-color: #2c2c2e;
+            color: #ffffff;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #02a0d1;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #48484a;
+            border-radius: 8px;
+            background-color: #2c2c2e;
+            color: #ffffff;
+            box-sizing: border-box;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236c6c70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            font-family: "Inter", sans-serif;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #02a0d1;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .radio-option {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .radio-input {
+            display: none;
+        }
+
+        .radio-label {
+            display: block;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #48484a;
+            border-radius: 8px;
+            background-color: #2c2c2e;
+            color: #ffffff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .radio-input:checked + .radio-label {
+            background-color: #e0f7ff;
+            border-color: #02a0d1;
+            color: #02a0d1;
+        }
+
+        .priority-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .priority-option {
+            flex: 1;
+        }
+
+        .priority-input {
+            display: none;
+        }
+
+        .priority-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #48484a;
+            border-radius: 8px;
+            background-color: #2c2c2e;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .priority-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+        }
+
+        .priority-high .priority-indicator {
+            background-color: #ff3b30;
+        }
+
+        .priority-medium .priority-indicator {
+            background-color: #ff9500;
+        }
+
+        .priority-low .priority-indicator {
+            background-color: #34c759;
+        }
+
+        .priority-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .priority-input:checked + .priority-label {
+            background-color: #48484a;
+            border-color: #02a0d1;
+        }
+
+        .date-input-container {
+            position: relative;
+        }
+
+        .date-input-container .form-input {
+            padding-right: 40px;
+        }
+
+        .date-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .team-input-container {
+            margin-top: 12px;
+            display: none;
+        }
+
+        #taskTypeTeam:checked ~ .team-input-container {
+            display: block;
+        }
+
+        /* Tag Selection Styles */
+        .tag-selection-container {
+            margin-top: 12px;
+        }
+
+        .tag-category {
+            margin-bottom: 20px;
+        }
+
+        .tag-category h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 12px 0;
+        }
+
+        .tag-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tag-option input[type="checkbox"] {
+            display: none;
+        }
+
+        .tag-label {
+            background-color: #48484a;
+            color: #a1a1a6;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #e5e5e5;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .tag-option input[type="checkbox"]:checked + .tag-label {
+            background-color: #02a0d1;
+            color: white;
+            border-color: #02a0d1;
+        }
+
+        .tag-option:hover .tag-label {
+            background-color: #e5e5e7;
+            border-color: #d1d1d6;
+        }
+
+        .tag-option input[type="checkbox"]:checked:hover + .tag-label {
+            background-color: #0198c4;
+            border-color: #0198c4;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background-color: rgba(249, 249, 249, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 6px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        <div class="header">
+            <a href="notebuddy_prototype_task_list.html" class="back-button">Cancel</a>
+            <h1>Add New Task</h1>
+            <a href="#" class="save-button" id="saveTaskBtn">Save</a>
+        </div>
+
+        <div class="main-content">
+            <form id="addTaskForm">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="taskName" class="form-label">Task Name</label>
+                        <input type="text" id="taskName" class="form-input" placeholder="Enter task name" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <div class="priority-options">
+                            <div class="priority-option">
+                                <input type="radio" name="priority" id="priorityHigh" class="priority-input" value="high">
+                                <label for="priorityHigh" class="priority-label priority-high">
+                                    <span class="priority-indicator"></span>
+                                    <span class="priority-text">High</span>
+                                </label>
+                            </div>
+                            <div class="priority-option">
+                                <input type="radio" name="priority" id="priorityMedium" class="priority-input" value="medium" checked>
+                                <label for="priorityMedium" class="priority-label priority-medium">
+                                    <span class="priority-indicator"></span>
+                                    <span class="priority-text">Medium</span>
+                                </label>
+                            </div>
+                            <div class="priority-option">
+                                <input type="radio" name="priority" id="priorityLow" class="priority-input" value="low">
+                                <label for="priorityLow" class="priority-label priority-low">
+                                    <span class="priority-indicator"></span>
+                                    <span class="priority-text">Low</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-group">
+                        <label class="form-label">Task Type</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="taskType" id="taskTypeIndividual" class="radio-input" value="individual" checked>
+                                <label for="taskTypeIndividual" class="radio-label">Individual</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="taskType" id="taskTypeTeam" class="radio-input" value="team">
+                                <label for="taskTypeTeam" class="radio-label">Team</label>
+                            </div>
+                        </div>
+                        
+                        <div class="team-input-container" id="teamInputContainer">
+                            <label for="teamMembers" class="form-label">Team Members</label>
+                            <input type="text" id="teamMembers" class="form-input" placeholder="Enter team members (comma separated)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="dueDate" class="form-label">Due Date</label>
+                        <div class="date-input-container">
+                            <input type="date" id="dueDate" class="form-input" required>
+                            <svg class="date-icon" viewBox="0 0 24 24" fill="#8e8e93">
+                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-group">
+                        <label class="form-label">Tags (Select multiple)</label>
+                                                <div class="tag-selection-container">
+                            <div class="tag-category">
+                                <h4>Event Tags</h4>
+                                <div class="tag-options">
+                                    <label class="tag-option">
+                                        <input type="checkbox" name="tags" value="work">
+                                        <span class="tag-label">Work</span>
+                                    </label>
+                                    <label class="tag-option">
+                                        <input type="checkbox" name="tags" value="personal">
+                                        <span class="tag-label">Personal</span>
+                                    </label>
+                                    <label class="tag-option">
+                                        <input type="checkbox" name="tags" value="task">
+                                        <span class="tag-label">Task</span>
+                                    </label>
+                                    <label class="tag-option">
+                                        <input type="checkbox" name="tags" value="meeting">
+                                        <span class="tag-label">Meeting</span>
+                                    </label>
+                                    <label class="tag-option">
+                                        <input type="checkbox" name="tags" value="project">
+                                        <span class="tag-label">Project</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="mock-data.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Set default due date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const formattedDate = tomorrow.toISOString().split('T')[0];
+    document.getElementById('dueDate').value = formattedDate;
+
+    // Team input toggle
+    const teamInputContainer = document.getElementById('teamInputContainer');
+    const taskTypeRadios = document.querySelectorAll('input[name="taskType"]');
+
+    function updateTeamInputVisibility() {
+        const selected = document.querySelector('input[name="taskType"]:checked').value;
+        teamInputContainer.style.display = selected === 'team' ? 'block' : 'none';
+    }
+
+    taskTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updateTeamInputVisibility);
+    });
+
+    updateTeamInputVisibility(); // Init on load
+
+    // Save button handler
+    const saveTaskBtn = document.getElementById('saveTaskBtn');
+    saveTaskBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        const taskName = document.getElementById('taskName').value.trim();
+        const dueDate = document.getElementById('dueDate').value;
+        const priority = document.querySelector('input[name="priority"]:checked').value;
+        const taskType = document.querySelector('input[name="taskType"]:checked').value;
+        const teamMembersInput = document.getElementById('teamMembers').value.trim();
+        // Get selected tags
+        const selectedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        if (!taskName) return alert("Please enter a task name");
+        if (!dueDate) return alert("Please select a due date");
+
+        const teamMembers = taskType === 'team'
+            ? teamMembersInput.split(',').map(x => x.trim()).filter(Boolean)
+            : ['You'];
+
+        // Task object for localStorage
+        const task = {
+            id: `t${Date.now()}`,
+            title: taskName,
+            dueDate: dueDate,
+            priority: priority,
+            taskType: taskType,
+            teamMembers: teamMembers,
+            tags: selectedTags,
+            status: "upcoming"
+        };
+
+        // Save to localStorage
+        const savedTasks = JSON.parse(localStorage.getItem('notebuddy_tasks') || '[]');
+        savedTasks.push(task);
+        localStorage.setItem('notebuddy_tasks', JSON.stringify(savedTasks));
+
+        // 🔁 Optionally also update mockData
+        if (typeof mockData !== 'undefined' && mockData.tasks) {
+            mockData.tasks.push({
+                id: `t${mockData.tasks.length + 1}`,
+                title: taskName,
+                dueDate: new Date(dueDate).toISOString(),
+                status: "pending",
+                priority: priority,
+                sourceMeetingId: null,
+                sourceMeetingTitle: "Manually Added",
+                clientName: null,
+                taskType: taskType,
+                teamMembers: teamMembers,
+                tags: selectedTags,
+                completedTimestamp: null
+            });
+        }
+
+        // Redirect back to task list
+        window.location.href = 'notebuddy_prototype_task_list.html';
+    });
+});
+</script>
+
+    <!-- Theme Management -->
+    <script>
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Listen for theme changes from settings page
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                if (e.newValue === 'dark') {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

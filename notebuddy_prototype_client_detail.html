@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Client Profile</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode {
+            background-color: #1c1c1e;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #ffffff;
+            color: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .app-frame {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #ffffff;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        body.dark-mode .status-bar-placeholder {
+            background-color: #1c1c1e;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 44px;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 150;
+        }
+
+        body.dark-mode .header {
+            background-color: #1c1c1e;
+        }
+
+        .header h1 {
+            font-size: 17px; 
+            font-weight: 600; 
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #1c1c1e;
+        }
+
+        body.dark-mode .header h1 {
+            color: #ffffff;
+        }
+        
+        .back-button {
+            color: #02a0d1;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .header .action-button-placeholder {
+            width: 60px;
+        }
+
+        .main-content {
+            padding-top: 88px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .client-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e5e7;
+        }
+
+        body.dark-mode .client-card {
+            background-color: #2c2c2e;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            border: 1px solid #48484a;
+        }
+
+        .client-header {
+            margin-bottom: 24px;
+        }
+
+        .client-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1c1c1e;
+            margin: 0 0 16px 0;
+        }
+
+        body.dark-mode .client-name {
+            color: #ffffff;
+        }
+
+        .tags-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .tag.red {
+            background-color: #DC2626;
+        }
+
+        .tag.dark-brown {
+            background-color: #1C1917;
+        }
+
+        .tag.orange {
+            background-color: #F97316;
+        }
+
+        .tag.light-orange {
+            background-color: #FDBA74;
+            color: #000000;
+        }
+
+        .client-description {
+            color: #8e8e93;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        body.dark-mode .client-description {
+            color: #a1a1a6;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .company-card {
+            background-color: #f2f2f7;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            color: #1c1c1e;
+            font-weight: 500;
+            border: 1px solid #e5e5e7;
+        }
+
+        body.dark-mode .company-card {
+            background-color: #48484a;
+            color: white;
+            border: none;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #48484a;
+            margin: 16px 0;
+        }
+
+        .projects-container {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .projects-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .project-card {
+            background-color: #f2f2f7;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            color: #1c1c1e;
+            font-weight: 500;
+            min-width: 120px;
+            flex-shrink: 0;
+            border: 1px solid #e5e5e7;
+        }
+
+        body.dark-mode .project-card {
+            background-color: #48484a;
+            color: white;
+            border: none;
+        }
+
+        .project-card.selected {
+            border: 2px solid #02a0d1;
+        }
+
+        .meetings-list {
+            space-y: 8px;
+        }
+
+        .meeting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e5e5e7;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .meeting-item {
+            background-color: #3a3a3c;
+            border: 1px solid #48484a;
+        }
+
+        .meeting-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .meeting-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .meeting-status.green {
+            background-color: #10B981;
+        }
+
+        .meeting-status.orange {
+            background-color: #F97316;
+        }
+
+        .meeting-status.blue {
+            background-color: #3B82F6;
+        }
+
+        .meeting-status.gray {
+            background-color: #9CA3AF;
+        }
+
+        .meeting-info h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1c1c1e;
+            margin: 0 0 2px 0;
+        }
+
+        body.dark-mode .meeting-info h3 {
+            color: #ffffff;
+        }
+
+        .meeting-info p {
+            font-size: 12px;
+            color: #8e8e93;
+            margin: 0;
+        }
+
+        .meeting-chevron {
+            color: #8e8e93;
+            font-size: 14px;
+        }
+
+        body.dark-mode .meeting-info p,
+        body.dark-mode .meeting-chevron {
+            color: #a1a1a6;
+        }
+
+        .summaries-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background-color: #ffffff;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .summary-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        body.dark-mode .summary-item {
+            background-color: #3a3a3c;
+            border: 1px solid #48484a;
+        }
+
+        body.dark-mode .summary-item:hover {
+            background-color: #48484a;
+        }
+
+        .summary-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .summary-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .summary-info h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1c1c1e;
+            margin: 0 0 2px 0;
+        }
+
+        body.dark-mode .summary-info h3 {
+            color: #ffffff;
+        }
+
+        .summary-info p {
+            font-size: 12px;
+            color: #8e8e93;
+            margin: 0;
+        }
+
+        body.dark-mode .summary-info p {
+            color: #a1a1a6;
+        }
+
+        .summary-chevron {
+            color: #8e8e93;
+            font-size: 14px;
+        }
+
+        body.dark-mode .summary-chevron {
+            color: #a1a1a6;
+        }
+
+        .loading-placeholder {
+            text-align: center;
+            padding: 20px;
+            color: #8e8e93;
+        }
+
+        body.dark-mode .loading-placeholder {
+            color: #a1a1a6;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background-color: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 6px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        body.dark-mode .bottom-nav {
+            background-color: rgba(44, 44, 46, 0.94);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        body.dark-mode .nav-item {
+            color: #9CA3AF;
+        }
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        body.dark-mode .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-top: -20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        <div class="header">
+            <a href="notebuddy_prototype_folder_view.html" class="back-button">← Back</a>
+            <h1>Client Profile</h1>
+            <div class="action-button-placeholder"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="client-card">
+                <!-- Client Header -->
+                <div class="client-header">
+                    <h1 class="client-name" id="clientName">Alexey Guiullard</h1>
+                    <div class="tags-row">
+                        <div class="tag red">Senior Developer</div>
+                        <div class="tag dark-brown">Tech Lead</div>
+                        <div class="tag orange">React Expert</div>
+                        <div class="tag light-orange">Frontend</div>
+                    </div>
+                    <p class="client-description" id="clientDescription">
+                        Senior Frontend Developer with 8+ years of experience in React, TypeScript, and modern web technologies. 
+                        Currently leading the frontend team at TechCorp Solutions, specializing in scalable web applications 
+                        and user experience optimization.
+                    </p>
+                </div>
+
+                <!-- Company Section -->
+                <div class="section">
+                    <h2 class="section-title">Company</h2>
+                    <div class="company-card" id="companyInfo">
+                        TechCorp Solutions - Enterprise Software Development
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="divider"></div>
+
+                <!-- Projects Section -->
+                <div class="section">
+                    <h2 class="section-title">Projects</h2>
+                    <div class="projects-container">
+                        <div class="project-card">E-commerce Platform</div>
+                        <div class="project-card">Mobile App</div>
+                        <div class="project-card selected">AI Dashboard</div>
+                        <div class="project-card">Analytics Tool</div>
+                        <div class="project-card">API Gateway</div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="divider"></div>
+
+                <!-- Meetings Section -->
+                <div class="section">
+                    <h2 class="section-title">Meetings</h2>
+                    <div class="meetings-list">
+                        <div class="meeting-item">
+                            <div class="meeting-left">
+                                <div class="meeting-status green"></div>
+                                <div class="meeting-info">
+                                    <h3>Project Kickoff</h3>
+                                    <p>Today, 2:00 PM</p>
+                                </div>
+                            </div>
+                            <div class="meeting-chevron">›</div>
+                        </div>
+
+                        <div class="meeting-item">
+                            <div class="meeting-left">
+                                <div class="meeting-status orange"></div>
+                                <div class="meeting-info">
+                                    <h3>Sprint Planning</h3>
+                                    <p>Tomorrow, 10:00 AM</p>
+                                </div>
+                            </div>
+                            <div class="meeting-chevron">›</div>
+                        </div>
+
+                        <div class="meeting-item">
+                            <div class="meeting-left">
+                                <div class="meeting-status blue"></div>
+                                <div class="meeting-info">
+                                    <h3>Client Review</h3>
+                                    <p>Friday, 3:30 PM</p>
+                                </div>
+                            </div>
+                            <div class="meeting-chevron">›</div>
+                        </div>
+
+                        <div class="meeting-item">
+                            <div class="meeting-left">
+                                <div class="meeting-status gray"></div>
+                                <div class="meeting-info">
+                                    <h3>Team Standup</h3>
+                                    <p>Next Monday, 9:00 AM</p>
+                                </div>
+                            </div>
+                            <div class="meeting-chevron">›</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Summaries Section -->
+                <div class="section">
+                    <h2 class="section-title">Recent Summaries</h2>
+                    <div id="recent-summaries-list" class="summaries-list">
+                        <!-- Summaries will be loaded here dynamically -->
+                        <div class="loading-placeholder">
+                            <p>Loading summaries...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </a>
+            <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Calendar
+            </a>
+            <div class="fab-container">
+                <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
+            </div>
+            <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Summaries
+            </a>
+            <a href="notebuddy_prototype_folder_view.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                </svg>
+                Folders
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Get client data from URL parameters
+        function getClientData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = urlParams.get('id');
+            const clientName = urlParams.get('name') || 'Alexey Guiullard';
+            const clientSubtitle = urlParams.get('subtitle') || 'Senior Frontend Developer';
+            
+            return {
+                id: clientId,
+                name: clientName,
+                subtitle: clientSubtitle
+            };
+        }
+
+        // Update client information based on URL parameters
+        function updateClientInfo() {
+            const clientData = getClientData();
+            
+            // Update client name
+            document.getElementById('clientName').textContent = clientData.name;
+            
+            // Update description based on client
+            const descriptions = {
+                'Alexey Guiullard': 'Senior Frontend Developer with 8+ years of experience in React, TypeScript, and modern web technologies. Currently leading the frontend team at TechCorp Solutions, specializing in scalable web applications and user experience optimization.',
+                'John Smith': 'Product Manager with 6+ years of experience in agile methodologies and cross-functional team leadership. Currently managing product development at InnovateCorp, focusing on user-centered design and market research.',
+                'Sarah Johnson': 'UX Designer with 5+ years of experience in user research, wireframing, and prototyping. Currently designing intuitive interfaces at DesignStudio, specializing in mobile-first design and accessibility.',
+                'Mike Chen': 'Full Stack Developer with 7+ years of experience in both frontend and backend technologies. Currently building scalable applications at TechStart, with expertise in cloud architecture and DevOps practices.'
+            };
+            
+            const description = descriptions[clientData.name] || descriptions['Alexey Guiullard'];
+            document.getElementById('clientDescription').textContent = description;
+        }
+
+        // Load client summaries
+        async function loadClientSummaries() {
+            try {
+                const clientData = getClientData();
+                const clientName = clientData.name;
+                
+                // Initialize Firebase if not already done
+                if (!window.firebaseDB) {
+                    window.firebaseDB = new FirebaseDatabase();
+                    await window.firebaseDB.initialize();
+                }
+                
+                // Load summaries for this client
+                const clientSummaries = await window.firebaseDB.getClientSummaries(clientName);
+                
+                // Display summaries
+                displayClientSummaries(clientSummaries);
+                
+            } catch (error) {
+                console.error('Error loading client summaries:', error);
+                displayNoSummaries();
+            }
+        }
+        
+        function displayClientSummaries(summaries) {
+            const summariesList = document.getElementById('recent-summaries-list');
+            
+            if (summaries.length === 0) {
+                displayNoSummaries();
+                return;
+            }
+            
+            summariesList.innerHTML = summaries.map(summary => `
+                <div class="summary-item" onclick="viewSummary('${summary.summaryId}')">
+                    <div class="summary-left">
+                        <div class="summary-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                            </svg>
+                        </div>
+                        <div class="summary-info">
+                            <h3>${summary.summaryTitle}</h3>
+                            <p>${formatDate(summary.summaryDate)}</p>
+                        </div>
+                    </div>
+                    <div class="summary-chevron">›</div>
+                </div>
+            `).join('');
+        }
+        
+        function displayNoSummaries() {
+            const summariesList = document.getElementById('recent-summaries-list');
+            summariesList.innerHTML = `
+                <div class="loading-placeholder">
+                    <p>No summaries related to this client yet.</p>
+                    <p style="font-size: 12px; margin-top: 8px;">Use the "Relate to Client" button in the Summaries page to connect meeting summaries to this client.</p>
+                </div>
+            `;
+        }
+        
+        function formatDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 1) {
+                    return 'Yesterday';
+                } else if (diffDays < 7) {
+                    return `${diffDays} days ago`;
+                } else {
+                    return date.toLocaleDateString();
+                }
+            } catch (error) {
+                return 'Recent';
+            }
+        }
+        
+        function viewSummary(summaryId) {
+            // Navigate to summary view with the specific summary
+            window.location.href = `notebuddy_prototype_summary_view.html?summaryId=${summaryId}`;
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateClientInfo();
+            loadClientSummaries();
+        });
+    </script>
+    
+    <!-- Theme Management Script -->
+    <script>
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        });
+
+        // Listen for theme changes from other pages
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                setTheme(e.newValue);
+            }
+        });
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+    </script>
+    
+    <!-- Firebase Database -->
+    <script src="firebase-database.js"></script>
+    
+    <!-- Authentication Check -->
+    <script src="auth-check.js"></script>
+</body>
+</html>

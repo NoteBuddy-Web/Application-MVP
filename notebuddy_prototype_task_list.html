@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Tasks</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        body.dark-mode {
+            background-color: #1c1c1e;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #ffffff;
+            color: #1c1c1e;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .app-frame {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #ffffff;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        body.dark-mode .status-bar-placeholder {
+            background-color: #1c1c1e;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; /* Make header sticky */
+            top: 44px; /* Position below status bar */
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+            border-bottom: 0.5px solid #e5e5e7;
+        }
+
+        body.dark-mode .header {
+            background-color: #1c1c1e;
+            border-bottom: 0.5px solid #38383a;
+        }
+
+        .header .action-button-placeholder-left {
+             width: 60px; 
+        }
+
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .header .add-task-btn {
+            color: #02a0d1;
+            font-size: 28px; 
+            font-weight: 300;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 5px;
+        }
+
+        .main-content {
+            padding-top: 44px; /* Header height */
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px; 
+            box-sizing: border-box;
+        }
+        
+        .filter-tabs {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 16px;
+    background-color: #ffffff;
+    border-bottom: 0.5px solid #e5e5e7;
+    position: sticky;
+    top: 0px; /* Status bar (44) + Header (44) */
+    z-index: 95;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Optional for depth */
+}
+
+        .filter-tab {
+            font-size: 15px;
+            font-weight: 500;
+            color: #8e8e93; 
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            flex-grow: 1;
+            top: 44px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .filter-tab.active {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        body.dark-mode .filter-tabs {
+            background-color: #1c1c1e;
+            border-bottom: 0.5px solid #48484a;
+        }
+
+        body.dark-mode .task-item-card {
+            background-color: #2c2c2e;
+            border: 1px solid #48484a;
+        }
+
+        .task-list {
+            padding: 0 16px;
+        }
+
+        .task-item-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e5e5e7;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #48484a;
+            background-color: #2c2c2e;
+            border-radius: 50%;
+            margin-right: 16px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            position: relative; /* For positioning the checkmark */
+        }
+        .task-checkbox svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .task-checkbox.completed {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-color: transparent;
+        }
+        .task-checkbox.completed svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .task-details h4 {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 0 4px 0;
+        }
+        .task-details .task-meta {
+            font-size: 12px;
+            color: #8e8e93;
+            margin: 0 0 4px 0;
+        }
+        .task-details .task-due-date {
+            font-size: 13px;
+            color: #6c6c70;
+            margin: 0 0 4px 0;
+        }
+        .task-details .task-due-date.overdue {
+            color: #ff3b30; 
+        }
+        .task-details .task-source {
+            font-size: 12px;
+            color: #8e8e93;
+            margin: 0;
+        }
+
+        .task-priority {
+            margin-left: auto;
+            width: 8px;
+            height: 24px;
+            border-radius: 4px;
+        }
+        .task-priority.high {
+            background-color: #ff3b30; 
+        }
+        .task-priority.medium {
+            background-color: #ff9500; 
+        }
+        .task-priority.low {
+            background-color: #34c759; 
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background-color: rgba(249, 249, 249, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 6px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        body.dark-mode .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: -20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+        .fab.active-fab {
+             box-shadow: 0 0 0 3px white, 0 0 0 5px #02a0d1; /* Active state for FAB */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        <div class="header">
+            <div class="action-button-placeholder-left"></div> 
+            <h1>Tasks</h1>
+            <a href="add_task_form.html" class="add-task-btn">+</a>
+        </div>
+
+        <div class="main-content">
+            <div class="filter-tabs">
+                <div class="filter-tab active" onclick="filterTasks(this, 'all')">All</div>
+                <div class="filter-tab" onclick="filterTasks(this, 'today')">Today</div>
+                <div class="filter-tab" onclick="filterTasks(this, 'upcoming')">Upcoming</div>
+                <div class="filter-tab" onclick="filterTasks(this, 'completed')">Completed</div>
+            </div>
+
+            <div class="task-list" id="taskListContainer">
+                <!-- Task 1 -->
+                <div class="task-item-card" data-status="today" data-original-status="today" onclick="toggleTask(this)">
+                    <div class="task-checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Finalize UI mockups for new dashboard</h4>
+                        <p class="task-meta">Type: Individual (Michael)</p>
+                        <p class="task-due-date">Due: Today, May 13</p>
+                        <p class="task-source">From: Product Roadmap Planning</p>
+                    </div>
+                    <div class="task-priority high"></div>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="task-item-card" data-status="upcoming" data-original-status="upcoming" onclick="toggleTask(this)">
+                    <div class="task-checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Schedule user testing sessions for onboarding</h4>
+                        <p class="task-meta">Type: Individual (Priya)</p>
+                        <p class="task-due-date">Due: May 20, 2025</p>
+                        <p class="task-source">From: Product Roadmap Planning</p>
+                    </div>
+                    <div class="task-priority medium"></div>
+                </div>
+
+                <!-- Task 3 -->
+                <div class="task-item-card" data-status="today" data-original-status="today" onclick="toggleTask(this)">
+                    <div class="task-checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Complete regression testing for new build</h4>
+                        <p class="task-meta">Type: Team (QA Team)</p>
+                        <p class="task-due-date">Due: Today, EOD</p>
+                        <p class="task-source">From: Weekly Team Standup</p>
+                    </div>
+                    <div class="task-priority high"></div>
+                </div>
+
+                <!-- Task 4 -->
+                <div class="task-item-card" data-status="upcoming" data-original-status="upcoming" onclick="toggleTask(this)">
+                    <div class="task-checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Send follow-up email (Project Alpha)</h4>
+                        <p class="task-meta">Client: Project Alpha Client &bull; Type: Individual (Account Manager)</p>
+                        <p class="task-due-date">Due: May 14, 2025</p>
+                        <p class="task-source">From: Client Kick-off: Project Alpha</p>
+                    </div>
+                    <div class="task-priority medium"></div>
+                </div>
+
+                <!-- Task 5 -->
+                <div class="task-item-card" data-status="upcoming" data-original-status="upcoming" onclick="toggleTask(this)">
+                    <div class="task-checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Develop content calendar for Q3</h4>
+                        <p class="task-meta">Type: Team (Content Team)</p>
+                        <p class="task-due-date">Due: May 30, 2025</p>
+                        <p class="task-source">From: Q3 Marketing Strategy</p>
+                    </div>
+                    <div class="task-priority medium"></div>
+                </div>
+
+                <!-- Task 6 -->
+                <div class="task-item-card" data-status="upcoming" data-original-status="upcoming" onclick="toggleTask(this)">
+                    <div class="task-checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Iterate on analytics dashboard mockups</h4>
+                        <p class="task-meta">Type: Team (Design Team)</p>
+                        <p class="task-due-date">Due: May 16, 2025</p>
+                        <p class="task-source">From: New Feature Design Review</p>
+                    </div>
+                    <div class="task-priority high"></div>
+                </div>
+
+                <!-- Task 7 -->
+                <div class="task-item-card" data-status="upcoming" data-original-status="upcoming" onclick="toggleTask(this)">
+                    <div class="task-checkbox">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Communicate final budget allocations</h4>
+                        <p class="task-meta">Type: Individual (CFO)</p>
+                        <p class="task-due-date">Due: May 15, 2025</p>
+                        <p class="task-source">From: Annual Budget Planning</p>
+                    </div>
+                    <div class="task-priority medium"></div>
+                </div>
+
+                <!-- Task 8 (Example Completed) -->
+                <div class="task-item-card" data-status="completed" data-original-status="past" onclick="toggleTask(this)">
+                    <div class="task-checkbox completed">
+                         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </div>
+                    <div class="task-details">
+                        <h4>Monitor server performance post-deployment</h4>
+                        <p class="task-meta">Type: Team (DevOps)</p>
+                        <p class="task-due-date">Completed: May 10, 2025</p>
+                        <p class="task-source">From: Weekly Team Standup</p>
+                    </div>
+                    <div class="task-priority low"></div>
+                </div>
+
+            </div>
+        </div>
+        
+        <nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+    </a>
+    <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        Calendar
+    </a>
+    <div class="fab-container">
+        <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+        </button>
+    </div>
+    <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        Summaries
+    </a>
+    <a href="notebuddy_prototype_folder_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+        </svg>
+        Folders
+    </a>
+    <a href="notebuddy_prototype_task_list.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+        </svg>
+        Tasks
+    </a>
+</nav>
+    </div>
+
+    <script>
+function toggleTask(taskElement) {
+    const checkbox = taskElement.querySelector(".task-checkbox");
+    const isNowCompleted = checkbox.classList.toggle("completed");
+    const taskDetails = taskElement.querySelector(".task-details");
+    const dueDateElement = taskDetails.querySelector(".task-due-date");
+
+    if (isNowCompleted) {
+        if (!taskElement.dataset.originalStatus && taskElement.dataset.status !== 'completed') {
+            taskElement.dataset.originalStatus = taskElement.dataset.status;
+        }
+        taskElement.dataset.status = "completed";
+
+        const today = new Date();
+        dueDateElement.textContent = `Completed: ${today.toLocaleString('default', { month: 'short' })} ${today.getDate()}, ${today.getFullYear()}`;
+        dueDateElement.classList.remove("overdue");
+    } else {
+        if (taskElement.dataset.originalStatus) {
+            taskElement.dataset.status = taskElement.dataset.originalStatus;
+
+            if (taskElement.dataset.originalStatus === "today") {
+                dueDateElement.textContent = "Due: Today, " + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            } else {
+                dueDateElement.textContent = "Due: Upcoming";
+            }
+        } else {
+            taskElement.dataset.status = "upcoming";
+            dueDateElement.textContent = "Due: Upcoming";
+        }
+    }
+
+    const activeFilter = document.querySelector(".filter-tab.active");
+    if (activeFilter) {
+        filterTasks(activeFilter, activeFilter.textContent.toLowerCase().trim());
+    }
+}
+
+function filterTasks(selectedTab, statusFilter) {
+    document.querySelectorAll(".filter-tab").forEach(tab => tab.classList.remove("active"));
+    selectedTab.classList.add("active");
+
+    const tasks = document.querySelectorAll(".task-item-card");
+    tasks.forEach(task => {
+        const isCompleted = task.querySelector(".task-checkbox.completed");
+        const current = task.dataset.status;
+        const original = task.dataset.originalStatus || current;
+
+        if (statusFilter === "all") {
+            task.style.display = isCompleted ? "none" : "flex";
+        } else if (statusFilter === "completed") {
+            task.style.display = isCompleted ? "flex" : "none";
+        } else {
+            task.style.display = (original === statusFilter && !isCompleted) ? "flex" : "none";
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // ✅ Apply filters
+    const activeFilter = document.querySelector(".filter-tab.active");
+    if (activeFilter) filterTasks(activeFilter, "all");
+
+    // ✅ Load tasks from localStorage
+    const savedTasks = JSON.parse(localStorage.getItem('notebuddy_tasks') || '[]');
+    const container = document.getElementById('taskListContainer');
+    if (container && savedTasks.length > 0) {
+        savedTasks.forEach(task => {
+            const div = document.createElement('div');
+            div.className = 'task-item-card';
+            div.setAttribute('data-status', task.status);
+            div.setAttribute('data-original-status', task.status);
+            div.onclick = function() { toggleTask(this); };
+
+            div.innerHTML = `
+                <div class="task-checkbox">
+                    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="task-details">
+                    <h4>${task.title}</h4>
+                    <p class="task-meta">Type: ${task.taskType.charAt(0).toUpperCase() + task.taskType.slice(1)} (${task.teamMembers.join(', ')})</p>
+                    <p class="task-due-date">Due: ${new Date(task.dueDate).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                    })}</p>
+                    <p class="task-source">From: ${task.project}</p>
+                </div>
+                <div class="task-priority ${task.priority}"></div>
+            `;
+            container.prepend(div);
+        });
+    }
+
+    // ✅ Touch feedback support
+    document.querySelectorAll(".nav-item, .fab, .add-task-btn, .task-item-card, .filter-tab").forEach(item => {
+        item.addEventListener("touchstart", () => {});
+    });
+
+    // ✅ Add task screen logic (if exists on this page)
+    const saveTaskBtn = document.getElementById('saveTaskBtn');
+    if (saveTaskBtn) {
+        // Set default due date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const formattedDate = tomorrow.toISOString().split('T')[0];
+        const dueDateInput = document.getElementById('dueDate');
+        if (dueDateInput) dueDateInput.value = formattedDate;
+
+        const teamInputContainer = document.getElementById('teamInputContainer');
+        const taskTypeIndividual = document.getElementById('taskTypeIndividual');
+        const taskTypeTeam = document.getElementById('taskTypeTeam');
+
+        function updateTeamInput() {
+            if (teamInputContainer) {
+                teamInputContainer.style.display = taskTypeTeam.checked ? 'block' : 'none';
+            }
+        }
+
+        if (taskTypeIndividual && taskTypeTeam) {
+            taskTypeIndividual.addEventListener('change', updateTeamInput);
+            taskTypeTeam.addEventListener('change', updateTeamInput);
+            updateTeamInput(); // Init
+        }
+
+        saveTaskBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const taskName = document.getElementById('taskName').value.trim();
+            const dueDate = document.getElementById('dueDate').value;
+            const priority = document.querySelector('input[name="priority"]:checked').value;
+            const taskType = document.querySelector('input[name="taskType"]:checked').value;
+            const teamMembersInput = document.getElementById('teamMembers').value.trim();
+            const teamMembers = taskType === 'team'
+                ? teamMembersInput.split(',').map(t => t.trim()).filter(Boolean)
+                : ['You'];
+
+            const relatedProject = document.getElementById('relatedProject').value;
+
+            if (!taskName) return alert("Please enter a task name");
+            if (!dueDate) return alert("Please select a due date");
+
+            const newTask = {
+                id: 't' + Date.now(),
+                title: taskName,
+                dueDate: dueDate,
+                status: "upcoming",
+                priority: priority,
+                taskType: taskType,
+                teamMembers: teamMembers,
+                project: relatedProject || "Manually Added"
+            };
+
+            const tasks = JSON.parse(localStorage.getItem('notebuddy_tasks') || '[]');
+            tasks.push(newTask);
+            localStorage.setItem('notebuddy_tasks', JSON.stringify(tasks));
+
+            window.location.href = "notebuddy_prototype_task_list.html";
+        });
+    }
+});
+</script>
+    
+    <!-- Authentication Check -->
+    <script src="auth-check.js">    </script>
+
+    <!-- Theme Management -->
+    <script>
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Listen for theme changes from settings page
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                if (e.newValue === 'dark') {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

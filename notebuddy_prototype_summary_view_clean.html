@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Meeting Summaries</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #f9f9f9;
+            color: #1d1d1f;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #f9f9f9;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid #c8c7cc;
+            position: absolute;
+            top: 44px;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 150;
+        }
+
+        .search-filter-bar {
+            position: absolute;
+            top: 88px;
+            left: -2px;
+            right: 34px;
+            z-index: 140;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            border-bottom: 0.5px solid #c8c7cc;
+            box-sizing: border-box;
+            padding: 12px 16px 16px 16px;
+            gap: 12px;
+            height: 52px;
+        }
+
+        .header .back-button {
+            color: #02a0d1;
+            text-decoration: none;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .header .back-button svg {
+            width: 22px;
+            height: 22px;
+            margin-right: 4px;
+        }
+
+        .header h1 {
+            font-size: 17px; 
+            font-weight: 600; 
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .header .action-button-placeholder {
+            width: 60px;
+        }
+
+        .search-filter-bar {
+            position: absolute;
+            top: 88px;
+            left: -2px;
+            right: 34px;
+            z-index: 140;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            border-bottom: 0.5px solid #c8c7cc;
+            box-sizing: border-box;
+            padding: 12px 16px 16px 16px;
+            gap: 12px;
+            height: 52px;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 12px 6px 36px;
+            border: 1px solid #c8c7cc;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #f2f2f7;
+            box-sizing: border-box;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            color: #8e8e93;
+        }
+
+        .filter-button {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .filter-button:hover {
+            background-color: #e5e5ea;
+        }
+
+        .main-content {
+            padding-top: 144px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            margin: 8px 12px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px; /* Thinner gradient area */
+            background: linear-gradient(135deg, 
+                rgba(2, 160, 209, 0.4) 0%, 
+                rgba(220, 61, 204, 0.4) 50%, 
+                rgba(255, 255, 255, 0) 100%); /* More vibrant with higher opacity */
+            border-radius: 16px 16px 0 0; /* Match card's top corners */
+            z-index: 1;
+        }
+
+        .summary-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .more-actions-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .more-actions-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #8e8e93;
+            transition: all 0.2s ease;
+        }
+
+        .more-actions-btn:hover svg {
+            fill: url(#threeDotsGradient);
+        }
+
+        .summary-title-section {
+            padding: 16px 16px 8px 16px;
+            border-bottom: 1px solid #f2f2f7;
+        }
+
+        .summary-title-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 0px 0;
+            padding: 3px 0;
+            color: #1d1d1f;
+        }
+
+        .summary-date {
+            font-size: 10px;
+            color: #8e8e93;
+            margin: 0;
+        }
+
+        .summary-content {
+            padding: 12px 16px 16px 16px;
+        }
+
+        .summary-section {
+            margin-bottom: 12px;
+        }
+
+        .summary-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-section h4 {
+            font-size: 9px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 4px 0;
+        }
+
+        .summary-section p {
+            font-size: 11px;
+            color: #1f2937;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .summary-section ul {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .summary-section li {
+            font-size: 14px;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8e8e93;
+        }
+
+        .no-data-message h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+
+        .no-data-message p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .action-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .action-menu-popup {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .action-menu-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            color: #8e8e93;
+        }
+
+        .action-menu-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-menu-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .action-menu-btn.primary {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        .action-menu-btn.secondary {
+            background: #f2f2f7;
+            color: #1d1d1f;
+        }
+
+        .action-menu-btn:hover {
+            opacity: 0.9;
+        }
+
+        .action-menu-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px; /* iOS tab bar height with home indicator */
+            background-color: rgba(249, 249, 249, 0.94); /* Translucent background */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start; /* Align items to top for icon + text */
+            padding-top: 6px; /* Padding for icons */
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93; /* Default icon/text color */
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: -20px; /* Pull it up slightly */
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+
+        .fab:active {
+            opacity: 0.8;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Gradient Definition for Three Dots -->
+    <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+        <defs>
+            <linearGradient id="threeDotsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#02a0d1;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#dc3dcc;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+    </svg>
+    
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        
+        <div class="header">
+            <a href="home.html" class="back-button">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </a>
+            <h1>Summaries</h1>
+            <div class="action-button-placeholder"></div>
+        </div>
+
+        <div class="search-filter-bar">
+            <div class="search-container">
+                <svg class="search-icon" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" id="summary-search-input" class="search-input" placeholder="Search summaries...">
+            </div>
+            <button class="filter-button square-filter-btn" onclick="alert('Open Filter Options - Mock.')" aria-label="Filter">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+            </button>
+        </div>
+
+        <div class="main-content" id="summary-list-container">
+            <!-- Summary cards will be dynamically loaded here -->
+        </div>
+
+        <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'">
+            <svg viewBox="0 0 24 24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+        </button>
+
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </a>
+            <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Calendar
+            </a>
+            <div class="fab-container">
+                <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
+            </div>
+            <a href="notebuddy_prototype_summary_view.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Summaries
+            </a>
+            <a href="notebuddy_prototype_task_list.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                </svg>
+                Tasks
+            </a>
+        </nav>
+
+        <!-- Action Menu Overlay -->
+        <div id="action-menu-overlay" class="action-menu-overlay">
+            <div class="action-menu-popup">
+                <div class="action-menu-header">
+                    <h3>Summary Actions</h3>
+                    <button class="close-btn" onclick="hideActionMenu()">×</button>
+                </div>
+                <div class="action-menu-actions">
+                    <button class="action-menu-btn primary" onclick="shareSummary()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                        Share Summary
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="showFullTranscript()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                        View Transcript
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="exportSummary()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Export Summary
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="deleteSummary()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                        Delete Summary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Check -->
+    <script src="auth-check.js"></script>
+    <script src="firebase-database.js"></script>
+    <script src="summary-data-model.js"></script>
+    <script>
+        // Load and display all summaries
+        async function loadLatestSummary() {
+            try {
+                // Initialize Firebase database
+                console.log('🔧 Initializing Firebase...');
+                await window.firebaseDB.initialize();
+                
+                // Load all summaries from Firebase
+                console.log('📡 Loading summaries from Firebase...');
+                const currentUserId = window.firebaseDB.getCurrentUserId();
+                console.log('Current user ID for loading:', currentUserId);
+                console.log('User email from localStorage:', localStorage.getItem('userEmail'));
+                console.log('User session status:', sessionStorage.getItem('userAuthenticated'));
+                
+                const firebaseSummaries = await window.firebaseDB.getSummaries(10);
+                console.log('🔍 Firebase summaries loaded:', firebaseSummaries);
+                console.log('Number of Firebase summaries:', firebaseSummaries ? firebaseSummaries.length : 0);
+                console.log('Firebase summaries type:', typeof firebaseSummaries);
+                console.log('Firebase summaries is array:', Array.isArray(firebaseSummaries));
+                
+                // Always include mock data for presentation
+                const mockSummaries = [
+                    {
+                        title: "Q4 Product Strategy Meeting",
+                        date: "2024-01-15T10:00:00Z",
+                        duration: "45 minutes",
+                        participants: ["Sarah Johnson", "Mike Chen", "Alex Rodriguez", "Emma Wilson"],
+                        summary: "Discussed Q4 product roadmap, new feature priorities, and resource allocation. Key focus on mobile app improvements and AI integration.",
+                        keyPoints: [
+                            "Mobile app redesign scheduled for March",
+                            "AI-powered search feature in development",
+                            "User feedback analysis shows 85% satisfaction",
+                            "Budget approval for 3 new developers"
+                        ],
+                        actionItems: [
+                            "Sarah: Complete user research by Feb 1st",
+                            "Mike: Present technical feasibility report",
+                            "Alex: Schedule follow-up with design team",
+                            "Emma: Prepare budget breakdown for stakeholders"
+                        ],
+                        fullTranscript: "Sarah Johnson: Good morning everyone, thanks for joining our Q4 product strategy meeting..."
+                    },
+                    {
+                        title: "Client Onboarding Process Review",
+                        date: "2024-01-12T14:30:00Z",
+                        duration: "30 minutes",
+                        participants: ["David Kim", "Lisa Thompson", "James Park"],
+                        summary: "Reviewed current client onboarding process and identified bottlenecks. Discussed improvements to reduce time-to-value for new clients.",
+                        keyPoints: [
+                            "Current onboarding takes 2-3 weeks",
+                            "Main bottleneck is documentation review",
+                            "Proposed automated checklist system",
+                            "Client satisfaction scores need improvement"
+                        ],
+                        actionItems: [
+                            "David: Create automated workflow diagram",
+                            "Lisa: Research best practices from competitors",
+                            "James: Implement new client feedback system"
+                        ],
+                        fullTranscript: "David Kim: Let's start by reviewing our current onboarding metrics..."
+                    }
+                ];
+                
+                // Add source identifier to mock summaries
+                const mockSummariesWithSource = mockSummaries.map(summary => ({
+                    ...summary,
+                    source: 'mock'
+                }));
+                
+                // Combine Firebase summaries with mock data
+                let allSummaries = [];
+                
+                console.log('🔍 Checking Firebase summaries condition...');
+                console.log('firebaseSummaries exists:', !!firebaseSummaries);
+                console.log('firebaseSummaries length:', firebaseSummaries ? firebaseSummaries.length : 'N/A');
+                
+                if (firebaseSummaries && firebaseSummaries.length > 0) {
+                    console.log(`✅ Loaded ${firebaseSummaries.length} summaries from Firebase`);
+                    console.log('📋 Firebase summary titles:', firebaseSummaries.map(s => s.title));
+                    // Add source identifier to Firebase summaries
+                    const firebaseSummariesWithSource = firebaseSummaries.map(summary => ({
+                        ...summary,
+                        source: 'firebase'
+                    }));
+                    // Add Firebase summaries first (newest on top)
+                    allSummaries = [...firebaseSummariesWithSource];
+                    // Add mock data after Firebase summaries
+                    allSummaries = [...allSummaries, ...mockSummariesWithSource];
+                    console.log('📊 Combined summaries (Firebase + Mock):', allSummaries.length);
+                } else {
+                    console.log('📭 No summaries found in Firebase, showing mock data only');
+                    console.log('📋 Mock summary titles:', mockSummariesWithSource.map(s => s.title));
+                    allSummaries = mockSummariesWithSource;
+                }
+                
+                // Sort all summaries by date (newest first)
+                allSummaries.sort((a, b) => {
+                    const dateA = new Date(a.date || a.createdAt || 0);
+                    const dateB = new Date(b.date || b.createdAt || 0);
+                    return dateB - dateA; // Newest first
+                });
+                
+                console.log(`📊 Total summaries to display: ${allSummaries.length}`);
+                console.log('🔍 Final combined summaries:', allSummaries.map(s => ({ title: s.title, date: s.date, source: s.source || 'unknown' })));
+                await displayAllSummaries(allSummaries);
+                return;
+            } catch (error) {
+                console.warn('⚠️ Could not load from Firebase, trying localStorage:', error);
+            }
+            
+            // Fallback to localStorage if Firebase fails
+            const summaryData = localStorage.getItem('latest_summary');
+            if (summaryData) {
+                try {
+                    const data = JSON.parse(summaryData);
+                    await displayAllSummaries([data]);
+                } catch (error) {
+                    console.error('Error parsing summary data:', error);
+                    showNoDataMessage();
+                }
+            } else {
+                showNoDataMessage();
+            }
+        }
+
+        async function displayAllSummaries(summaries) {
+            const container = document.getElementById('summary-list-container');
+            
+            // Clear existing content
+            container.innerHTML = '';
+            
+            if (summaries.length === 0) {
+                showNoDataMessage();
+                return;
+            }
+            
+            // Create summary cards for each summary
+            // Create summary cards with speaker mappings
+            const cardPromises = summaries.map(async (summary, index) => {
+                const summaryCard = await createSummaryCard(summary, index);
+                return summaryCard;
+            });
+            
+            const summaryCards = await Promise.all(cardPromises);
+            summaryCards.forEach(card => {
+                container.appendChild(card);
+            });
+        }
+
+        async function createSummaryCard(data, index) {
+            // Parse and display structured summary data
+            let participants = 'Meeting participants';
+            let keyPoints = [];
+            let actionItems = [];
+            let title = 'Latest Meeting';
+            let date = new Date().toLocaleString();
+            let summaryText = 'Meeting summary will be available when you expand this card.';
+            
+            // Handle Firebase data format (already structured)
+            if (data.participants && Array.isArray(data.participants)) {
+                participants = data.participants.join(', ');
+                keyPoints = data.keyPoints || [];
+                // Filter and limit action items - only include items with actual content
+                actionItems = (data.actionItems && Array.isArray(data.actionItems)) 
+                    ? data.actionItems.filter(item => {
+                        if (typeof item === 'object' && item.task) {
+                            return item.task.trim().length > 0;
+                        } else if (typeof item === 'string') {
+                            return item.trim().length > 0;
+                        }
+                        return false;
+                    }).slice(0, 3) 
+                    : []; // Limit to 3 action items
+                title = data.title || 'Latest Meeting';
+                summaryText = data.summary || 'Meeting summary will be available when you expand this card.';
+                // Use the date from data, or fall back to createdAt, or current date
+                if (data.date) {
+                    date = new Date(data.date).toLocaleString();
+                } else if (data.createdAt) {
+                    date = new Date(data.createdAt).toLocaleString();
+                } else {
+                    date = new Date().toLocaleString();
+                }
+            } else if (data.summary && typeof data.summary === 'object') {
+                // Legacy structured format
+                participants = data.summary.participants ? data.summary.participants.join(', ') : 'Meeting participants';
+                keyPoints = data.summary.keyPoints || [];
+                // Filter and limit action items - only include items with actual content
+                actionItems = (data.summary.actionItems && Array.isArray(data.summary.actionItems)) 
+                    ? data.summary.actionItems.filter(item => {
+                        if (typeof item === 'object' && item.task) {
+                            return item.task.trim().length > 0;
+                        } else if (typeof item === 'string') {
+                            return item.trim().length > 0;
+                        }
+                        return false;
+                    }).slice(0, 3) 
+                    : []; // Limit to 3 action items
+                summaryText = data.summary.summary || 'Meeting summary will be available when you expand this card.';
+            } else if (data.summary && typeof data.summary === 'string') {
+                // Parse text format
+                summaryText = data.summary;
+                
+                // Extract action items from summary text
+                const actionSection = summaryText.match(/Action Items?:([\s\S]*)/i);
+                if (actionSection) {
+                    actionItems = actionSection[1].split('\n')
+                        .map(item => item.trim())
+                        .filter(item => item.length > 0 && item.startsWith('-'))
+                        .map(item => item.substring(1).trim());
+                }
+                
+                // Extract key points (simplified)
+                keyPoints = ["Key discussion points from the meeting"];
+            }
+
+            // Create the summary card HTML
+            const summaryCard = document.createElement('div');
+            summaryCard.className = 'summary-card';
+            summaryCard.id = index === 0 ? 'latest-summary-card' : `summary-card-${index}`;
+            summaryCard.setAttribute('data-title', title);
+            
+            // Store summary ID for speaker mapping
+            if (data.id) {
+                summaryCard.setAttribute('data-summary-id', data.id);
+            }
+            
+            // Store full transcript data if available
+            let transcript = data.transcript || data.fullTranscript || '';
+            if (transcript && data.id) {
+                // Load speaker mappings and apply them to the transcript
+                try {
+                    const speakerMappings = await getSpeakerMappings(data.id);
+                    if (Object.keys(speakerMappings).length > 0) {
+                        transcript = applySpeakerMappings(transcript, speakerMappings);
+                        console.log('Applied speaker mappings to summary card:', speakerMappings);
+                    }
+                } catch (error) {
+                    console.error('Error loading speaker mappings for summary card:', error);
+                    // Continue without speaker mappings if there's an error
+                }
+                summaryCard.setAttribute('data-transcript', transcript);
+            } else if (transcript) {
+                summaryCard.setAttribute('data-transcript', transcript);
+            }
+
+            summaryCard.innerHTML = `
+                <button class="more-actions-btn" aria-label="More Actions" title="More Actions" onclick="event.stopPropagation(); showMoreActions(this.closest('.summary-card'));">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                </button>
+                
+                <div class="summary-title-section">
+                    <h3 id="summary-title">${title}</h3>
+                    <p class="summary-date" id="summary-date">${date}</p>
+                </div>
+                
+                <div class="summary-content">
+                    <div class="summary-section">
+                        <h4>Participants</h4>
+                        <p id="summary-participants">${participants}</p>
+                    </div>
+                    
+                    <div class="summary-section">
+                        <h4>Summary</h4>
+                        <p>${summaryText}</p>
+                    </div>
+                </div>
+            `;
+
+            return summaryCard;
+        }
+
+        function showNoDataMessage() {
+            const container = document.getElementById('summary-list-container');
+            container.innerHTML = `
+                <div class="no-data-message">
+                    <h3>No Summaries Yet</h3>
+                    <p>Upload or record audio to see your meeting summaries here.</p>
+                </div>
+            `;
+        }
+
+        function showMoreActions(summaryCard) {
+            // Store reference to the clicked summary card
+            window.currentSummaryCard = summaryCard;
+            document.getElementById('action-menu-overlay').style.display = 'flex';
+        }
+
+        function hideActionMenu() {
+            document.getElementById('action-menu-overlay').style.display = 'none';
+        }
+
+        function shareSummary() {
+            // Get summary data from the current card
+            const summaryCard = window.currentSummaryCard;
+            if (!summaryCard) return;
+
+            const title = summaryCard.querySelector('h3').textContent;
+            const participants = summaryCard.querySelector('#summary-participants').textContent;
+            const keyPoints = Array.from(summaryCard.querySelectorAll('#summary-key-points li')).map(li => li.textContent);
+            const actionItems = Array.from(summaryCard.querySelectorAll('#summary-action-items li')).map(li => li.textContent);
+
+            const shareTitle = `Meeting Summary: ${title}`;
+            const shareText = `
+Participants: ${participants}
+
+Key Points:
+${keyPoints.map(point => `• ${point}`).join('\n')}
+
+Action Items:
+${actionItems.map(item => `• ${item}`).join('\n')}
+            `.trim();
+
+            // Check if Web Share API is supported
+            if (navigator.share) {
+                navigator.share({
+                    title: shareTitle,
+                    text: shareText
+                }).catch(error => {
+                    console.log('Error sharing:', error);
+                    showShareOptions(shareTitle, shareText);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                showShareOptions(shareTitle, shareText);
+            }
+        }
+
+        function showShareOptions(title, text) {
+            // Create share options popup with NoteBuddy aesthetic
+            const shareOverlay = document.createElement('div');
+            shareOverlay.className = 'action-menu-overlay';
+            shareOverlay.style.zIndex = '2000';
+            shareOverlay.style.background = 'rgba(0, 0, 0, 0.6)';
+            shareOverlay.style.backdropFilter = 'blur(10px)';
+            
+            const sharePopup = document.createElement('div');
+            sharePopup.className = 'action-menu-popup';
+            sharePopup.style.cssText = `
+                width: 340px;
+                max-width: 90vw;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                overflow: hidden;
+            `;
+            
+            sharePopup.innerHTML = `
+                <div class="action-menu-header" style="
+                    background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    position: relative;
+                ">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Share Summary</h3>
+                    <button class="close-btn" onclick="this.closest('.action-menu-overlay').remove()" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: rgba(255, 255, 255, 0.2);
+                        border: none;
+                        border-radius: 50%;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: background 0.2s ease;
+                    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="action-menu-actions" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                    <button class="action-menu-btn primary" onclick="shareViaGmail('${title.replace(/'/g, "\\'")}', '${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 4px 12px rgba(2, 160, 209, 0.3);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(2, 160, 209, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(2, 160, 209, 0.3)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        Share via Gmail
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="shareViaMessages('${title.replace(/'/g, "\\'")}', '${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: #f8f9fa;
+                        color: #02a0d1;
+                        border: 2px solid #e9ecef;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#e9ecef'; this.style.borderColor='#02a0d1'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f8f9fa'; this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                        </svg>
+                        Share via Messages
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="copyToClipboard('${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: #f8f9fa;
+                        color: #02a0d1;
+                        border: 2px solid #e9ecef;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#e9ecef'; this.style.borderColor='#02a0d1'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f8f9fa'; this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                        Copy to Clipboard
+                    </button>
+                    <button class="action-menu-btn secondary" onclick="shareViaAirDrop('${title.replace(/'/g, "\\'")}', '${text.replace(/'/g, "\\'")}'); this.closest('.action-menu-overlay').remove();" style="
+                        background: #f8f9fa;
+                        color: #02a0d1;
+                        border: 2px solid #e9ecef;
+                        border-radius: 12px;
+                        padding: 16px 20px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#e9ecef'; this.style.borderColor='#02a0d1'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f8f9fa'; this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        Share via AirDrop
+                    </button>
+                </div>
+            `;
+            
+            shareOverlay.appendChild(sharePopup);
+            document.body.appendChild(shareOverlay);
+            
+            // Close on overlay click
+            shareOverlay.addEventListener('click', (e) => {
+                if (e.target === shareOverlay) {
+                    shareOverlay.remove();
+                }
+            });
+        }
+
+        function shareViaGmail(title, text) {
+            const subject = encodeURIComponent(title);
+            const body = encodeURIComponent(text);
+            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`;
+            window.open(gmailUrl, '_blank');
+        }
+
+        function shareViaMessages(title, text) {
+            const body = encodeURIComponent(`${title}\n\n${text}`);
+            const messagesUrl = `sms:?body=${body}`;
+            window.open(messagesUrl);
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Summary copied to clipboard!');
+                }).catch(err => {
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                fallbackCopyToClipboard(text);
+            }
+        }
+
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Summary copied to clipboard!');
+            } catch (err) {
+                alert('Failed to copy to clipboard');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function shareViaAirDrop(title, text) {
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text
+                });
+            } else {
+                copyToClipboard(text);
+            }
+        }
+
+        function formatTranscript(transcript) {
+            if (!transcript) return 'No transcript available';
+            
+            console.log('formatTranscript called with:', transcript);
+            console.log('Contains colon:', transcript.includes(':'));
+            console.log('Contains Participant:', transcript.includes('Participant'));
+            console.log('Contains Speaker:', transcript.includes('Speaker'));
+            
+            // Check if transcript already has speaker formatting
+            if (transcript.includes(':') && (transcript.includes('Participant') || transcript.includes('Speaker'))) {
+                console.log('Using speaker-formatted transcript');
+                // Format with speaker separation
+                return transcript.split('\n').map(line => {
+                    if (line.includes(':')) {
+                        const [speaker, ...content] = line.split(':');
+                        const speakerName = speaker.trim();
+                        const message = content.join(':').trim();
+                        
+                        // Style speaker names as clickable
+                        return `<div style="margin-bottom: 8px;">
+                            <strong style="color: #007AFF; font-weight: 600; cursor: pointer; text-decoration: underline;" 
+                                    onclick="editSpeakerName('${speakerName}', this)" 
+                                    title="Click to edit speaker name">${speakerName}:</strong>
+                            <span style="margin-left: 8px;">${message}</span>
+                        </div>`;
+                    } else {
+                        return `<div style="margin-bottom: 4px;">${line}</div>`;
+                    }
+                }).join('');
+            } else {
+                console.log('Using fallback formatting - attempting to detect speakers');
+                return detectAndFormatSpeakers(transcript);
+            }
+        }
+
+        function detectAndFormatSpeakers(transcript) {
+            // Split transcript into sentences and analyze patterns
+            const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            let currentSpeaker = 1;
+            let speakerCount = 1;
+            const speakerMap = new Map();
+            const result = [];
+            
+            // Always start with Speaker 1 for the first sentence
+            if (sentences.length > 0) {
+                const firstSentence = sentences[0].trim();
+                if (firstSentence) {
+                    result.push(`<div style="margin-bottom: 8px;">
+                        <strong style="color: #007AFF; font-weight: 600;">Speaker 1:</strong>
+                        <span style="margin-left: 8px;">${firstSentence}</span>
+                    </div>`);
+                }
+            }
+            
+            // Patterns that indicate speaker changes
+            const speakerChangePatterns = [
+                // Greetings and responses
+                /^(hi|hello|hey|good morning|good afternoon|good evening|good night)/i,
+                /^(thanks|thank you|you're welcome|no problem)/i,
+                /^(okay|ok|alright|right|sure|yes|no|absolutely|definitely)/i,
+                
+                // Conversation starters
+                /^(so|well|now|next|first|second|third|finally|lastly)/i,
+                /^(let me|let's|i think|i believe|i feel|i suggest|i recommend)/i,
+                /^(we need|we should|we can|we will|we have|we must)/i,
+                
+                // Questions and responses
+                /^(what|how|when|where|why|who|which|can you|could you)/i,
+                /^(that's|this is|here's|there's|i'm|i'll|i've|i'd)/i,
+                
+                // Agreement/disagreement
+                /^(i agree|i disagree|exactly|precisely|absolutely not)/i,
+                /^(that makes sense|that's right|that's correct)/i,
+                
+                // Transitions
+                /^(moving on|speaking of|by the way|also|additionally)/i,
+                /^(in conclusion|to summarize|to wrap up)/i
+            ];
+            
+            // Analyze each sentence starting from the second one
+            for (let i = 1; i < sentences.length; i++) {
+                const sentence = sentences[i].trim();
+                if (!sentence) continue;
+                
+                // Check if this sentence indicates a speaker change
+                const isSpeakerChange = speakerChangePatterns.some(pattern => pattern.test(sentence));
+                
+                // Additional logic: if sentence is very different in style/length from previous, likely new speaker
+                const prevSentence = i > 0 ? sentences[i-1].trim() : '';
+                const isDifferentStyle = prevSentence && (
+                    Math.abs(sentence.length - prevSentence.length) > 50 || // Very different length
+                    (sentence.length < 20 && prevSentence.length > 50) || // Short after long
+                    (sentence.length > 50 && prevSentence.length < 20)    // Long after short
+                );
+                
+                // Check for question-answer patterns
+                const isQuestion = /[?]$/.test(sentence);
+                const prevWasQuestion = i > 0 && /[?]$/.test(prevSentence);
+                const isAnswer = isQuestion && prevWasQuestion;
+                
+                // Determine if this should be a new speaker
+                if (isSpeakerChange || isDifferentStyle || (isQuestion && !prevWasQuestion)) {
+                    // Check if we've seen this pattern before
+                    const sentenceKey = sentence.toLowerCase().substring(0, 30);
+                    if (!speakerMap.has(sentenceKey)) {
+                        speakerCount++;
+                        speakerMap.set(sentenceKey, speakerCount);
+                        currentSpeaker = speakerCount;
+                    } else {
+                        currentSpeaker = speakerMap.get(sentenceKey);
+                    }
+                }
+                
+                // Limit to 5 speakers max
+                if (currentSpeaker > 5) currentSpeaker = 5;
+                
+                // Format the sentence with speaker
+                const speakerName = `Speaker ${currentSpeaker}`;
+                result.push(`<div style="margin-bottom: 8px;">
+                    <strong style="color: #007AFF; font-weight: 600; cursor: pointer; text-decoration: underline;" 
+                            onclick="editSpeakerName('${speakerName}', this)" 
+                            title="Click to edit speaker name">${speakerName}:</strong>
+                    <span style="margin-left: 8px;">${sentence}</span>
+                </div>`);
+            }
+            
+            return result.join('');
+        }
+
+        async function showFullTranscript() {
+            const summaryCard = window.currentSummaryCard;
+            if (!summaryCard) return;
+
+            const transcript = summaryCard.getAttribute('data-transcript');
+            const title = summaryCard.getAttribute('data-title');
+            const summaryId = summaryCard.getAttribute('data-summary-id');
+            
+            if (!transcript) {
+                alert('No transcript available for this meeting.');
+                return;
+            }
+            
+            // Load speaker mappings for this summary
+            const speakerMappings = summaryId ? await getSpeakerMappings(summaryId) : {};
+            console.log('Loaded speaker mappings:', speakerMappings);
+            
+            // Refresh the transcript with latest mappings if available
+            if (summaryId && Object.keys(speakerMappings).length > 0) {
+                await refreshTranscriptWithLatestMappings(summaryId);
+                // Get the updated transcript
+                const updatedTranscript = summaryCard.getAttribute('data-transcript');
+                if (updatedTranscript) {
+                    transcript = updatedTranscript;
+                }
+            }
+            
+            // Create a modal-like display
+            const modal = document.createElement('div');
+            modal.id = 'transcript-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 12px;
+                    max-width: 600px;
+                    max-height: 80vh;
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                ">
+                    <div style="
+                        background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+                        color: white;
+                        padding: 16px 20px;
+                        border-radius: 12px 12px 0 0;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    ">
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Full Transcript - ${title}</h3>
+                        <button onclick="closeTranscriptModal()" style="
+                            background: rgba(255, 255, 255, 0.2);
+                            border: none;
+                            border-radius: 50%;
+                            width: 28px;
+                            height: 28px;
+                            color: white;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                        ">×</button>
+                    </div>
+                    <div style="
+                        flex: 1;
+                        overflow-y: auto;
+                        padding: 16px;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        font-size: 13px;
+                        line-height: 1.6;
+                        color: #1d1d1f;
+                    ">
+                        ${formatTranscript(applySpeakerMappings(transcript, speakerMappings))}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function closeTranscriptModal() {
+            const modal = document.getElementById('transcript-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function editSpeakerName(currentName, element) {
+            console.log('editSpeakerName called with:', currentName, element);
+            const newName = prompt(`Edit speaker name for "${currentName}":`, currentName);
+            if (newName !== null) { // User clicked OK (even if same name)
+                const trimmedNewName = newName.trim();
+                
+                if (trimmedNewName && trimmedNewName !== currentName) {
+                    console.log('Updating speaker name from', currentName, 'to', trimmedNewName);
+                    
+                    // Immediately update the clicked element
+                    element.textContent = trimmedNewName + ':';
+                    element.setAttribute('onclick', `editSpeakerName('${trimmedNewName}', this)`);
+                    
+                    // Get the summary ID from the current card
+                    const summaryCard = element.closest('.summary-card');
+                    const summaryId = summaryCard ? summaryCard.getAttribute('data-summary-id') : null;
+                    
+                    console.log('Summary ID:', summaryId);
+                    
+                    if (summaryId) {
+                        // Save to Firestore first
+                        saveSpeakerMapping(summaryId, currentName, trimmedNewName).then(() => {
+                            console.log('Speaker mapping saved, updating display...');
+                            // Update all instances of this speaker in the current transcript display
+                            updateAllSpeakerInstances(currentName, trimmedNewName, summaryCard);
+                            
+                            // Update the transcript data attribute for future displays
+                            updateTranscriptData(summaryId, currentName, trimmedNewName);
+                        }).catch(error => {
+                            console.error('Error saving speaker mapping:', error);
+                            // Still update the display even if database save fails
+                            updateAllSpeakerInstances(currentName, trimmedNewName, summaryCard);
+                        });
+            } else {
+                        console.log('No summary ID, updating display only...');
+                        // Fallback: just update the display if no summary ID
+                        updateAllSpeakerInstances(currentName, trimmedNewName, element.closest('.summary-card'));
+                    }
+                } else if (trimmedNewName === currentName) {
+                    console.log('Speaker name unchanged');
+                } else {
+                    console.log('Empty speaker name provided');
+                }
+            } else {
+                console.log('User cancelled speaker name edit');
+            }
+        }
+
+        async function saveSpeakerMapping(summaryId, oldName, newName) {
+            try {
+                console.log('saveSpeakerMapping called with:', { summaryId, oldName, newName });
+                const db = firebase.firestore();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('Current user ID:', userId);
+                
+                if (!userId) {
+                    console.error('No user ID available for saving speaker mapping');
+                    return false;
+                }
+                
+                // Check if mapping already exists
+                const existingMapping = await db.collection('speaker_mappings')
+                    .where('userId', '==', userId)
+                    .where('summaryId', '==', summaryId)
+                    .where('oldName', '==', oldName)
+                    .get();
+                
+                if (!existingMapping.empty) {
+                    // Update existing mapping
+                    const doc = existingMapping.docs[0];
+                    await doc.ref.update({
+                        newName: newName,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log('Speaker mapping updated:', { summaryId, oldName, newName });
+                } else {
+                    // Create new mapping
+                    await db.collection('speaker_mappings').add({
+                        userId: userId,
+                        summaryId: summaryId,
+                        oldName: oldName,
+                        newName: newName,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log('Speaker mapping created:', { summaryId, oldName, newName });
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error saving speaker mapping:', error);
+                return false;
+            }
+        }
+
+        async function getSpeakerMappings(summaryId) {
+            try {
+                console.log('getSpeakerMappings called with summaryId:', summaryId);
+                const db = firebase.firestore();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('Current user ID for getting mappings:', userId);
+                
+                if (!userId) {
+                    console.error('No user ID available for getting speaker mappings');
+                    return {};
+                }
+                
+                const snapshot = await db.collection('speaker_mappings')
+                    .where('userId', '==', userId)
+                    .where('summaryId', '==', summaryId)
+                    .get();
+                
+                const mappings = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    mappings[data.oldName] = data.newName;
+                });
+                
+                console.log('Found speaker mappings:', mappings);
+                console.log('Number of mappings found:', Object.keys(mappings).length);
+                return mappings;
+            } catch (error) {
+                console.error('Error getting speaker mappings:', error);
+                return {};
+            }
+        }
+
+        function updateAllSpeakerInstances(oldName, newName, summaryCard) {
+            console.log('updateAllSpeakerInstances called:', oldName, '->', newName);
+            
+            // Find all speaker elements in the current transcript display
+            // Check both the summary card and any open transcript modal
+            const transcriptContainers = [
+                summaryCard.querySelector('[style*="font-family: -apple-system"]'),
+                document.querySelector('div[style*="position: fixed"] [style*="font-family: -apple-system"]')
+            ].filter(Boolean);
+            
+            console.log('Found transcript containers:', transcriptContainers.length);
+            
+            transcriptContainers.forEach((transcriptContainer, index) => {
+                console.log(`Processing container ${index}:`, transcriptContainer);
+                
+                // Look for all strong elements that have onclick attributes
+                const speakerElements = transcriptContainer.querySelectorAll('strong[onclick]');
+                console.log(`Found ${speakerElements.length} speaker elements in container ${index}`);
+                
+                speakerElements.forEach((element, elementIndex) => {
+                    const currentText = element.textContent.trim();
+                    console.log(`Element ${elementIndex}: "${currentText}"`);
+                    
+                    if (currentText === oldName + ':') {
+                        console.log(`Updating element ${elementIndex} from "${currentText}" to "${newName}:"`);
+                        element.textContent = newName + ':';
+                        // Update the onclick attribute to use the new name
+                        element.setAttribute('onclick', `editSpeakerName('${newName}', this)`);
+                    }
+                });
+            });
+        }
+
+        function updateTranscriptData(summaryId, oldName, newName) {
+            // Update the transcript data attribute to reflect the new speaker name
+            const summaryCard = document.querySelector(`[data-summary-id="${summaryId}"]`);
+            if (summaryCard) {
+                const currentTranscript = summaryCard.getAttribute('data-transcript');
+                if (currentTranscript) {
+                    // Replace all instances of the old speaker name with the new one
+                    const updatedTranscript = currentTranscript.replace(
+                        new RegExp(`\\b${oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'),
+                        newName
+                    );
+                    summaryCard.setAttribute('data-transcript', updatedTranscript);
+                }
+            }
+        }
+
+        async function refreshTranscriptWithLatestMappings(summaryId) {
+            try {
+                const speakerMappings = await getSpeakerMappings(summaryId);
+                const summaryCard = document.querySelector(`[data-summary-id="${summaryId}"]`);
+                
+                if (summaryCard && Object.keys(speakerMappings).length > 0) {
+                    const currentTranscript = summaryCard.getAttribute('data-transcript');
+                    if (currentTranscript) {
+                        // Get the original transcript (without mappings applied)
+                        // For now, we'll work with the current transcript
+                        const updatedTranscript = applySpeakerMappings(currentTranscript, speakerMappings);
+                        summaryCard.setAttribute('data-transcript', updatedTranscript);
+                        console.log('Refreshed transcript with latest speaker mappings:', speakerMappings);
+                    }
+                }
+            } catch (error) {
+                console.error('Error refreshing transcript with latest mappings:', error);
+            }
+        }
+
+        // Test function to verify Firebase connection
+        async function testFirebaseConnection() {
+            try {
+                console.log('Testing Firebase connection...');
+                const db = firebase.firestore();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('User ID for test:', userId);
+                
+                if (!userId) {
+                    console.error('No user ID - Firebase connection test failed');
+                    return false;
+                }
+                
+                // Try to read from a test collection
+                const testSnapshot = await db.collection('speaker_mappings')
+                    .where('userId', '==', userId)
+                    .limit(1)
+                    .get();
+                
+                console.log('Firebase connection test successful');
+                console.log('Test query returned:', testSnapshot.size, 'documents');
+                return true;
+            } catch (error) {
+                console.error('Firebase connection test failed:', error);
+                return false;
+            }
+        }
+
+        // Test function to check Firebase summaries
+        async function testFirebaseSummaries() {
+            try {
+                console.log('🧪 Testing Firebase summaries...');
+                await window.firebaseDB.initialize();
+                const userId = window.firebaseDB.getCurrentUserId();
+                console.log('🧪 User ID:', userId);
+                
+                if (!userId) {
+                    console.error('🧪 No user ID available');
+                    return;
+                }
+                
+                const summaries = await window.firebaseDB.getSummaries(10);
+                console.log('🧪 Firebase summaries result:', summaries);
+                console.log('🧪 Number of summaries:', summaries ? summaries.length : 0);
+                
+                if (summaries && summaries.length > 0) {
+                    console.log('🧪 Summary titles:', summaries.map(s => s.title));
+                } else {
+                    console.log('🧪 No summaries found in Firebase');
+                }
+                
+                return summaries;
+            } catch (error) {
+                console.error('🧪 Error testing Firebase summaries:', error);
+                return null;
+            }
+        }
+
+        function applySpeakerMappings(transcript, mappings) {
+            if (!mappings || Object.keys(mappings).length === 0) {
+                return transcript;
+            }
+            
+            let updatedTranscript = transcript;
+            Object.entries(mappings).forEach(([oldName, newName]) => {
+                // Replace speaker names in the transcript
+                const regex = new RegExp(`\\b${oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+                updatedTranscript = updatedTranscript.replace(regex, newName);
+            });
+            
+            return updatedTranscript;
+        }
+
+        function formatTranscriptForExport(transcript) {
+            if (!transcript) return 'No transcript available';
+            
+            // Check if transcript already has speaker formatting
+            if (transcript.includes(':') && (transcript.includes('Speaker') || transcript.includes('Participant'))) {
+                // Convert HTML formatted transcript to plain text for export
+                return transcript
+                    .replace(/<div[^>]*>/g, '')
+                    .replace(/<\/div>/g, '\n')
+                    .replace(/<strong[^>]*>/g, '')
+                    .replace(/<\/strong>/g, '')
+                    .replace(/<span[^>]*>/g, '')
+                    .replace(/<\/span>/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            } else {
+                // Use the same speaker detection logic but return plain text
+                const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                let currentSpeaker = 1;
+                let speakerCount = 1;
+                const speakerMap = new Map();
+                const result = [];
+                
+                // Always start with Speaker 1 for the first sentence
+                if (sentences.length > 0) {
+                    const firstSentence = sentences[0].trim();
+                    if (firstSentence) {
+                        result.push(`Speaker 1: ${firstSentence}`);
+                    }
+                }
+                
+                // Use the same speaker detection patterns
+                const speakerChangePatterns = [
+                    /^(hi|hello|hey|good morning|good afternoon|good evening|good night)/i,
+                    /^(thanks|thank you|you're welcome|no problem)/i,
+                    /^(okay|ok|alright|right|sure|yes|no|absolutely|definitely)/i,
+                    /^(so|well|now|next|first|second|third|finally|lastly)/i,
+                    /^(let me|let's|i think|i believe|i feel|i suggest|i recommend)/i,
+                    /^(we need|we should|we can|we will|we have|we must)/i,
+                    /^(what|how|when|where|why|who|which|can you|could you)/i,
+                    /^(that's|this is|here's|there's|i'm|i'll|i've|i'd)/i,
+                    /^(i agree|i disagree|exactly|precisely|absolutely not)/i,
+                    /^(that makes sense|that's right|that's correct)/i,
+                    /^(moving on|speaking of|by the way|also|additionally)/i,
+                    /^(in conclusion|to summarize|to wrap up)/i
+                ];
+                
+                // Analyze each sentence starting from the second one
+                for (let i = 1; i < sentences.length; i++) {
+                    const sentence = sentences[i].trim();
+                    if (!sentence) continue;
+                    
+                    const isSpeakerChange = speakerChangePatterns.some(pattern => pattern.test(sentence));
+                    const prevSentence = i > 0 ? sentences[i-1].trim() : '';
+                    const isDifferentStyle = prevSentence && (
+                        Math.abs(sentence.length - prevSentence.length) > 50 ||
+                        (sentence.length < 20 && prevSentence.length > 50) ||
+                        (sentence.length > 50 && prevSentence.length < 20)
+                    );
+                    const isQuestion = /[?]$/.test(sentence);
+                    const prevWasQuestion = i > 0 && /[?]$/.test(prevSentence);
+                    
+                    if (isSpeakerChange || isDifferentStyle || (isQuestion && !prevWasQuestion)) {
+                        const sentenceKey = sentence.toLowerCase().substring(0, 30);
+                        if (!speakerMap.has(sentenceKey)) {
+                            speakerCount++;
+                            speakerMap.set(sentenceKey, speakerCount);
+                            currentSpeaker = speakerCount;
+                        } else {
+                            currentSpeaker = speakerMap.get(sentenceKey);
+                        }
+                    }
+                    
+                    if (currentSpeaker > 5) currentSpeaker = 5;
+                    
+                    result.push(`Speaker ${currentSpeaker}: ${sentence}`);
+                }
+                
+                return result.join('\n');
+            }
+        }
+
+        async function exportSummary() {
+            const summaryCard = window.currentSummaryCard;
+            if (!summaryCard) return;
+
+            const title = summaryCard.querySelector('h3').textContent;
+            const participants = summaryCard.querySelector('#summary-participants').textContent;
+            const keyPoints = Array.from(summaryCard.querySelectorAll('#summary-key-points li')).map(li => li.textContent);
+            const actionItems = Array.from(summaryCard.querySelectorAll('#summary-action-items li')).map(li => li.textContent);
+            const transcript = summaryCard.getAttribute('data-transcript') || 'No transcript available';
+            const summaryId = summaryCard.getAttribute('data-summary-id');
+            
+            // Load speaker mappings and apply them to the transcript
+            let finalTranscript = transcript;
+            if (summaryId) {
+                const speakerMappings = await getSpeakerMappings(summaryId);
+                finalTranscript = applySpeakerMappings(transcript, speakerMappings);
+            }
+            
+            // Format transcript with speaker separation for export
+            const formattedTranscript = formatTranscriptForExport(finalTranscript);
+
+            const exportText = `
+MEETING SUMMARY
+${title}
+
+PARTICIPANTS
+${participants}
+
+KEY POINTS
+${keyPoints.map(point => `• ${point}`).join('\n')}
+
+ACTION ITEMS
+${actionItems.map(item => `• ${item}`).join('\n')}
+
+FULL TRANSCRIPT
+${formattedTranscript}
+            `.trim();
+
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_summary.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function deleteSummary() {
+            if (confirm('Are you sure you want to delete this summary?')) {
+                const summaryCard = window.currentSummaryCard;
+                if (summaryCard) {
+                    summaryCard.remove();
+                    hideActionMenu();
+                }
+            }
+        }
+
+        // Load summary when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadLatestSummary();
+        });
+
+        // Close action menu when clicking outside
+        document.getElementById('action-menu-overlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                hideActionMenu();
+            }
+        });
+
+        // Search functionality
+        document.getElementById('summary-search-btn').addEventListener('click', function() {
+            const input = document.getElementById('summary-search-input').value.trim().toLowerCase();
+            const cards = document.querySelectorAll('.summary-card');
+            cards.forEach(card => {
+                const title = card.querySelector('.summary-title-section h3').textContent.toLowerCase();
+                if (!input || title.includes(input)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Enable touch interactions
+        document.querySelectorAll(".summary-card, .nav-item, .fab, .back-button, .filter-button").forEach(item => {
+            item.addEventListener("touchstart", function() {}); // Enables :active state on touch
+        });
+    </script>
+</body>
+</html>

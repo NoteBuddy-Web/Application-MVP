@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Clients</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1c1c1e;
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            background-color: #1c1c1e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            width: 375px;
+            overflow: hidden;
+            border: 1px solid #48484a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .status-bar-placeholder {
+            height: 44px;
+            background-color: #1c1c1e;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 200;
+        }
+
+        .header {
+            padding: 0 16px;
+            height: 44px;
+            background-color: #1c1c1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 44px;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .header .back-button {
+            color: #02a0d1;
+            font-size: 24px;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 5px;
+        }
+
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+        }
+        
+        .header .add-client-btn {
+            color: #02a0d1;
+            font-size: 28px; 
+            font-weight: 300;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 5px;
+        }
+
+        .main-content {
+            padding-top: 44px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 83px; 
+            box-sizing: border-box;
+        }
+        
+        .client-tabs {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 16px;
+            background-color: #1c1c1e;
+            border-bottom: 0.5px solid #48484a;
+            position: sticky;
+            top: 44px;
+            z-index: 95;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .client-tab {
+            font-size: 15px;
+            font-weight: 500;
+            color: #a1a1a6; 
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            flex-grow: 1;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .client-tab.active {
+            color: white;
+        }
+        
+        .client-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .client-tab.active::after {
+            width: 80%;
+        }
+
+        .client-list {
+            padding: 16px;
+        }
+
+        .client-card {
+            background-color: #2c2c2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #48484a;
+        }
+
+        .client-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #02a0d1;
+        }
+
+        .client-card.expanded {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            border-color: #02a0d1;
+        }
+
+        .client-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .client-info {
+            flex: 1;
+        }
+
+        .client-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            color: #ffffff;
+        }
+
+        .client-company {
+            font-size: 14px;
+            color: #a1a1a6;
+            margin: 0 0 4px 0;
+        }
+
+        .client-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .client-status.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .client-status.inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .client-expand-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            transition: transform 0.3s ease;
+        }
+
+        .client-card.expanded .client-expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .client-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            margin-top: 12px;
+            border-top: 1px solid #48484a;
+            padding-top: 12px;
+        }
+
+        .client-card.expanded .client-details {
+            max-height: 500px;
+        }
+
+        .client-detail-section {
+            margin-bottom: 12px;
+        }
+
+        .client-detail-section h5 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 6px 0;
+            color: #ffffff;
+        }
+
+        .client-detail-section p {
+            font-size: 13px;
+            color: #8e8e93;
+            margin: 0 0 4px 0;
+        }
+
+        .meeting-item {
+            background-color: #3a3a3c;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 4px 0;
+            font-size: 13px;
+            color: #8e8e93;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px;
+            background-color: rgba(44, 44, 46, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 6px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #a1a1a6;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #02a0d1;
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-top: -20px;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+        .fab.active-fab {
+             box-shadow: 0 0 0 3px white, 0 0 0 5px #02a0d1;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+        <div class="header">
+            <a href="notebuddy_prototype_folder_view.html" class="back-button">←</a>
+            <h1>Clients</h1>
+            <a href="#" class="add-client-btn" onclick="showAddClientModal()">+</a>
+        </div>
+
+        <div class="main-content">
+            <div class="client-tabs">
+                <div class="client-tab active" onclick="switchClientTab(this, 'all')">All Clients</div>
+                <div class="client-tab" onclick="switchClientTab(this, 'active')">Active</div>
+                <div class="client-tab" onclick="switchClientTab(this, 'prospects')">Prospects</div>
+            </div>
+            
+            <div class="client-list" id="clientListContainer">
+                <!-- Client 1 -->
+                <div class="client-card" data-client-type="active" onclick="toggleClientCard(this)">
+                    <div class="client-header">
+                        <div class="client-info">
+                            <h4 class="client-name">Sarah Johnson</h4>
+                            <p class="client-company">TechCorp Solutions</p>
+                            <span class="client-status active">Active</span>
+                        </div>
+                        <div class="client-expand-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="client-details">
+                        <div class="client-detail-section">
+                            <h5>Contact Information</h5>
+                            <p>Email: sarah.johnson@techcorp.com</p>
+                            <p>Phone: +1 (555) 123-4567</p>
+                            <p>Role: CTO</p>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Recent Meetings</h5>
+                            <div class="meeting-item">Product Strategy Review - May 10, 2025</div>
+                            <div class="meeting-item">Technical Architecture Discussion - May 8, 2025</div>
+                            <div class="meeting-item">Budget Planning Session - May 5, 2025</div>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Notes</h5>
+                            <p>Interested in AI integration features. Budget approved for Q2 development.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client 2 -->
+                <div class="client-card" data-client-type="prospects" onclick="toggleClientCard(this)">
+                    <div class="client-header">
+                        <div class="client-info">
+                            <h4 class="client-name">Michael Chen</h4>
+                            <p class="client-company">Global Finance Inc.</p>
+                            <span class="client-status active">Active</span>
+                        </div>
+                        <div class="client-expand-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="client-details">
+                        <div class="client-detail-section">
+                            <h5>Contact Information</h5>
+                            <p>Email: m.chen@globalfinance.com</p>
+                            <p>Phone: +1 (555) 987-6543</p>
+                            <p>Role: VP of Operations</p>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Recent Meetings</h5>
+                            <div class="meeting-item">Q2 Planning Meeting - May 12, 2025</div>
+                            <div class="meeting-item">Compliance Review - May 9, 2025</div>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Notes</h5>
+                            <p>Focus on compliance and security features. High priority client.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client 3 -->
+                <div class="client-card" data-client-type="active" onclick="toggleClientCard(this)">
+                    <div class="client-header">
+                        <div class="client-info">
+                            <h4 class="client-name">Emily Rodriguez</h4>
+                            <p class="client-company">Startup Ventures</p>
+                            <span class="client-status inactive">Inactive</span>
+                        </div>
+                        <div class="client-expand-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="client-details">
+                        <div class="client-detail-section">
+                            <h5>Contact Information</h5>
+                            <p>Email: emily@startupventures.com</p>
+                            <p>Phone: +1 (555) 456-7890</p>
+                            <p>Role: Founder & CEO</p>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Recent Meetings</h5>
+                            <div class="meeting-item">Initial Consultation - April 28, 2025</div>
+                            <div class="meeting-item">Follow-up Discussion - May 2, 2025</div>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Notes</h5>
+                            <p>Pilot project completed. Awaiting budget approval for full implementation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client 4 -->
+                <div class="client-card" onclick="toggleClientCard(this)">
+                    <div class="client-header">
+                        <div class="client-info">
+                            <h4 class="client-name">David Thompson</h4>
+                            <p class="client-company">Real Estate Partners</p>
+                            <span class="client-status active">Active</span>
+                        </div>
+                        <div class="client-expand-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M7 10l5 5 5-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="client-details">
+                        <div class="client-detail-section">
+                            <h5>Contact Information</h5>
+                            <p>Email: d.thompson@realestatepartners.com</p>
+                            <p>Phone: +1 (555) 321-9876</p>
+                            <p>Role: Managing Partner</p>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Recent Meetings</h5>
+                            <div class="meeting-item">Property Portfolio Review - May 11, 2025</div>
+                            <div class="meeting-item">Market Analysis Discussion - May 7, 2025</div>
+                            <div class="meeting-item">Investment Strategy Planning - May 3, 2025</div>
+                        </div>
+                        <div class="client-detail-section">
+                            <h5>Notes</h5>
+                            <p>Looking to expand property management software. Very interested in automation features.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Home
+            </a>
+            <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                Calendar
+            </a>
+            <div class="fab-container">
+                <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
+            </div>
+            <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                Summaries
+            </a>
+            <a href="notebuddy_prototype_folder_view.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                </svg>
+                Folders
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // Client card expansion functionality
+        function toggleClientCard(cardElement) {
+            cardElement.classList.toggle('expanded');
+        }
+
+        // Add client modal (placeholder)
+        function showAddClientModal() {
+            alert('Add new client functionality would be implemented here');
+        }
+
+        // Switch between client tabs
+        function switchClientTab(selectedTab, tabId) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.client-tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to selected tab
+            selectedTab.classList.add('active');
+            
+            // Filter clients based on tab
+            const clientCards = document.querySelectorAll('.client-card');
+            clientCards.forEach(card => {
+                const clientType = card.getAttribute('data-client-type') || 'active';
+                if (tabId === 'all' || clientType === tabId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Load saved clients from localStorage
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedClients = JSON.parse(localStorage.getItem('notebuddy_clients') || '[]');
+            const container = document.getElementById('clientListContainer');
+            
+            if (savedClients.length > 0) {
+                savedClients.forEach(client => {
+                    const div = document.createElement('div');
+                    div.className = 'client-card';
+                    div.onclick = function() { toggleClientCard(this); };
+
+                    div.innerHTML = `
+                        <div class="client-header">
+                            <div class="client-info">
+                                <h4 class="client-name">${client.name}</h4>
+                                <p class="client-company">${client.company}</p>
+                                <span class="client-status ${client.status}">${client.status.charAt(0).toUpperCase() + client.status.slice(1)}</span>
+                            </div>
+                            <div class="client-expand-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16">
+                                    <path d="M7 10l5 5 5-5z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="client-details">
+                            <div class="client-detail-section">
+                                <h5>Contact Information</h5>
+                                <p>Email: ${client.email}</p>
+                                <p>Phone: ${client.phone}</p>
+                                <p>Role: ${client.role}</p>
+                            </div>
+                            <div class="client-detail-section">
+                                <h5>Recent Meetings</h5>
+                                ${client.meetings ? client.meetings.map(meeting => 
+                                    `<div class="meeting-item">${meeting}</div>`
+                                ).join('') : '<p>No recent meetings</p>'}
+                            </div>
+                            <div class="client-detail-section">
+                                <h5>Notes</h5>
+                                <p>${client.notes || 'No notes available'}</p>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            // Touch feedback support
+            document.querySelectorAll(".nav-item, .fab, .add-client-btn, .client-card").forEach(item => {
+                item.addEventListener("touchstart", () => {});
+            });
+        });
+    </script>
+    
+    <!-- Authentication Check -->
+    <script src="auth-check.js"></script>
+</body>
+</html>

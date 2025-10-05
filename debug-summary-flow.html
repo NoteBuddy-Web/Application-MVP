@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Summary Flow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .success { border-color: #4CAF50; background: #e8f5e8; }
+        .error { border-color: #f44336; background: #ffeaea; }
+        .info { border-color: #2196F3; background: #e3f2fd; }
+        button {
+            background: #02a0d1;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0188b8; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .step { margin: 10px 0; padding: 10px; border-left: 3px solid #02a0d1; background: white; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Summary Flow</h1>
+    
+    <div class="debug-section">
+        <h2>Step 1: Test Server Connection</h2>
+        <button onclick="testServer()">Test Server</button>
+        <div id="serverResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Step 2: Test Firebase Connection</h2>
+        <button onclick="testFirebase()">Test Firebase</button>
+        <div id="firebaseResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Step 3: Test Audio Upload</h2>
+        <input type="file" id="audioFile" accept="audio/*">
+        <button onclick="testAudioUpload()">Upload Test Audio</button>
+        <div id="uploadResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Step 4: Test Summary Creation</h2>
+        <button onclick="testSummaryCreation()">Create Test Summary</button>
+        <div id="summaryResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Step 5: Test Summary Loading</h2>
+        <button onclick="testSummaryLoading()">Load Summaries</button>
+        <div id="loadingResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Step 6: Check Summary View</h2>
+        <button onclick="goToSummaryView()">Go to Summary View</button>
+        <div id="viewResult"></div>
+    </div>
+
+    <script src="firebase-database.js"></script>
+    <script src="summary-data-model.js"></script>
+    <script>
+        // Mock authentication
+        function mockAuth() {
+            const mockUser = {
+                uid: 'test-user-123',
+                email: 'test@example.com',
+                displayName: 'Test User'
+            };
+            
+            // Mock Firebase auth
+            if (!window.firebase) {
+                window.firebase = {};
+            }
+            window.firebase.auth = () => ({
+                currentUser: mockUser,
+                onAuthStateChanged: (callback) => callback(mockUser)
+            });
+            
+            return mockUser;
+        }
+
+        async function testServer() {
+            const resultDiv = document.getElementById('serverResult');
+            resultDiv.innerHTML = '<div class="step">Testing server connection...</div>';
+            
+            try {
+                const response = await fetch('/api/process-audio', {
+                    method: 'POST',
+                    body: new FormData()
+                });
+                
+                if (response.status === 400) {
+                    resultDiv.innerHTML = '<div class="step success">✅ Server is running (400 error expected for empty request)</div>';
+                } else {
+                    resultDiv.innerHTML = `<div class="step success">✅ Server is running (Status: ${response.status})</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="step error">❌ Server connection failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testFirebase() {
+            const resultDiv = document.getElementById('firebaseResult');
+            resultDiv.innerHTML = '<div class="step">Testing Firebase connection...</div>';
+            
+            try {
+                mockAuth();
+                await window.firebaseDB.initialize();
+                
+                const summaries = await window.firebaseDB.getSummaries(1);
+                
+                resultDiv.innerHTML = `
+                    <div class="step success">✅ Firebase connection successful!</div>
+                    <div class="step info">Found ${summaries.length} summaries in database</div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="step error">❌ Firebase connection failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testAudioUpload() {
+            const fileInput = document.getElementById('audioFile');
+            const resultDiv = document.getElementById('uploadResult');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<div class="step error">❌ Please select an audio file first</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="step">Uploading audio file...</div>';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                const response = await fetch('/api/process-audio', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="step success">✅ Audio upload successful!</div>
+                        <div class="step info">Response data:</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="step error">❌ Upload failed: ${data.error || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="step error">❌ Upload error: ${error.message}</div>`;
+            }
+        }
+
+        async function testSummaryCreation() {
+            const resultDiv = document.getElementById('summaryResult');
+            resultDiv.innerHTML = '<div class="step">Creating test summary...</div>';
+            
+            try {
+                mockAuth();
+                await window.firebaseDB.initialize();
+                
+                // Create test summary data
+                const testSummary = {
+                    title: "Test Meeting - " + new Date().toLocaleString(),
+                    date: new Date().toISOString(),
+                    duration: "1:30",
+                    participants: ["John Doe", "Jane Smith"],
+                    keyPoints: ["Test point 1", "Test point 2"],
+                    actionItems: [
+                        { task: "Test task 1", assignee: "John", dueDate: "2024-01-15", priority: "High" }
+                    ],
+                    transcript: "This is a test transcript for debugging purposes.",
+                    summary: "This is a test summary for debugging purposes.",
+                    tags: ["test", "debug"]
+                };
+                
+                const convertedData = window.summaryDataModel.convertLegacySummary(testSummary);
+                const summaryId = await window.firebaseDB.saveSummary(convertedData);
+                
+                // Also save to localStorage
+                localStorage.setItem('latest_summary', JSON.stringify(testSummary));
+                localStorage.setItem('latest_summary_id', summaryId);
+                
+                resultDiv.innerHTML = `
+                    <div class="step success">✅ Test summary created successfully!</div>
+                    <div class="step info">Summary ID: ${summaryId}</div>
+                    <div class="step info">Data saved to both Firebase and localStorage</div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="step error">❌ Summary creation failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testSummaryLoading() {
+            const resultDiv = document.getElementById('loadingResult');
+            resultDiv.innerHTML = '<div class="step">Loading summaries...</div>';
+            
+            try {
+                mockAuth();
+                await window.firebaseDB.initialize();
+                
+                const summaries = await window.firebaseDB.getSummaries(10);
+                
+                resultDiv.innerHTML = `
+                    <div class="step success">✅ Summaries loaded successfully!</div>
+                    <div class="step info">Found ${summaries.length} summaries</div>
+                    <pre>${JSON.stringify(summaries, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="step error">❌ Summary loading failed: ${error.message}</div>`;
+            }
+        }
+
+        function goToSummaryView() {
+            const resultDiv = document.getElementById('viewResult');
+            resultDiv.innerHTML = '<div class="step info">Redirecting to summary view...</div>';
+            
+            setTimeout(() => {
+                window.location.href = 'notebuddy_prototype_summary_view.html';
+            }, 1000);
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            testServer();
+            setTimeout(testFirebase, 1000);
+        });
+    </script>
+</body>
+</html>

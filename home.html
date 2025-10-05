@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NoteBuddy - Home</title>
+    <style>
+        /* Inter Font (placeholder, actual font loaded via CDN or local files in full build) */
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff; /* Pure white background */
+        }
+
+        .app-frame {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            background-color: #ffffff; /* Pure white background */
+            color: #1d1d1f; /* Apple's dark gray for text */
+            display: flex;
+            flex-direction: column;
+            height: 812px; /* iPhone X height */
+            width: 375px; /* iPhone X width */
+            overflow: hidden; /* Prevent scrolling for the main shell */
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative; /* For positioning status bar and nav bar */
+            box-sizing: border-box;
+        }
+
+        .status-bar-placeholder {
+            height: 44px; /* Approximate iOS status bar height */
+            background-color: #ffffff;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .main-content {
+            padding-top: 44px; /* Account for status bar */
+            flex-grow: 1;
+            overflow-y: auto; /* Allow content to scroll */
+            padding-bottom: 83px; /* Account for bottom nav bar */
+        }
+
+        /* Chatbot Styles */
+        .chatbot-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-height: calc(100vh - 127px); /* Account for header and bottom nav */
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .message.user-message {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            flex-shrink: 0;
+        }
+
+        .bot-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .message-content {
+            max-width: 70%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .message-bubble {
+            background: #f0f0f0;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            position: relative;
+        }
+
+        .user-message .message-bubble {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .user-message .message-bubble p {
+            color: white;
+        }
+
+        .message-bubble p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #1d1d1f;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #a1a1a6;
+            text-align: right;
+            padding: 0 4px;
+        }
+
+        .user-message .message-time {
+            text-align: left;
+        }
+
+        .chat-input-container {
+            padding: 16px;
+            background: #ffffff;
+            border-top: 1px solid #e5e5e7;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .quick-action-btn {
+            background: #f0f0f0;
+            border: 1px solid #d1d1d6;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #a1a1a6;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: #02a0d1;
+            border-color: #02a0d1;
+            color: white;
+        }
+
+        .quick-action-btn svg {
+            fill: currentColor;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid #d1d1d6;
+            border-radius: 20px;
+            padding: 12px 16px;
+            font-size: 15px;
+            outline: none;
+            background: #f0f0f0;
+            color: #1d1d1f;
+        }
+
+        .chat-input:focus {
+            border-color: #02a0d1;
+        }
+
+        .chat-input::placeholder {
+            color: #8e8e93;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        .send-button svg {
+            fill: currentColor;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px;
+            background: #f0f0f0;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            max-width: 70px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #a1a1a6;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .header {
+            padding: 5px 20px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            color: #1d1d1f;
+        }
+
+        .header .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #02a0d1;
+            background-image: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px; /* iOS tab bar height with home indicator */
+            background-color: rgba(255, 255, 255, 0.94); /* White translucent background */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 0.5px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start; /* Align items to top for icon + text */
+            padding-top: 6px; /* Padding for icons */
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 10px;
+            text-decoration: none;
+            flex-grow: 1;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #02a0d1; /* Blue color for active nav item */
+        }
+
+        .nav-item svg {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+        }
+
+
+        .fab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .fab {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: -20px; /* Pull it up slightly */
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .fab svg {
+            width: 28px;
+            height: 28px;
+        }
+        .fab:hover {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            transform: scale(1.05);
+        }
+        
+        .fab:active {
+            opacity: 0.8;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #1c1c1e;
+        }
+
+        body.dark-mode .app-frame {
+            background-color: #1c1c1e;
+            color: #ffffff;
+            border: 1px solid #38383a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .status-bar-placeholder {
+            background-color: #1c1c1e;
+        }
+
+        body.dark-mode .header {
+            background-color: #1c1c1e;
+            border-bottom: 1px solid #38383a;
+        }
+
+        body.dark-mode .header h1 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .chat-input-container {
+            background: #1c1c1e;
+            border-top: 1px solid #38383a;
+        }
+
+        body.dark-mode .quick-action-btn {
+            background: #2c2c2e;
+            border: 1px solid #48484a;
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .quick-action-btn:hover {
+            background: #02a0d1;
+            border-color: #02a0d1;
+            color: white;
+        }
+
+        body.dark-mode .chat-input {
+            background: #2c2c2e;
+            border: 1px solid #48484a;
+            color: #ffffff;
+        }
+
+        body.dark-mode .chat-input:focus {
+            border-color: #02a0d1;
+        }
+
+        body.dark-mode .chat-input::placeholder {
+            color: #8e8e93;
+        }
+
+        body.dark-mode .message-bubble {
+            background: #2c2c2e;
+            color: #ffffff;
+        }
+
+        body.dark-mode .user-message .message-bubble {
+            background: linear-gradient(135deg, #02a0d1, #dc3dcc);
+            color: white;
+        }
+
+        body.dark-mode .user-message .message-bubble p {
+            color: white;
+        }
+
+        body.dark-mode .message-bubble p {
+            color: #ffffff;
+        }
+
+        body.dark-mode .message-time {
+            color: #8e8e93;
+        }
+
+        body.dark-mode .typing-indicator {
+            background: #2c2c2e;
+        }
+
+        body.dark-mode .bottom-nav {
+            background-color: rgba(44, 44, 46, 0.94);
+            border-top: 0.5px solid #38383a;
+        }
+
+        body.dark-mode .nav-item {
+            color: #a1a1a6;
+        }
+
+        body.dark-mode .nav-item.active {
+            color: #02a0d1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-frame">
+        <div class="status-bar-placeholder"></div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>NoteBuddy AI</h1>
+                <div class="avatar" onclick="window.location.href='notebuddy_prototype_settings_page.html'">
+                    NB
+        </div>
+            </div>
+            
+            <!-- Chatbot Interface -->
+            <div class="chatbot-container">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <div class="bot-avatar">NB</div>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p>Hi! I'm NoteBuddy AI, your intelligent meeting assistant. How can I help you today?</p>
+                            </div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>
+            </div>
+            
+                <div class="chat-input-container">
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Record a meeting')">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+                            </svg>
+                            Record
+                        </button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Show my summaries')">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                            </svg>
+                            Summaries
+                        </button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Schedule a meeting')">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                            </svg>
+                            Schedule
+                        </button>
+                        <button class="quick-action-btn" onclick="sendQuickMessage('Join Zoom meeting as bot')">
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            Zoom Bot
+            </button>
+                    </div>
+                    
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Ask me anything..." maxlength="500">
+                        <button class="send-button" onclick="sendMessage()">
+                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="bottom-nav">
+    <a href="index.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+    </a>
+    <a href="notebuddy_prototype_calendar_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        Calendar
+    </a>
+    <div class="fab-container">
+        <button class="fab" onclick="window.location.href='notebuddy_prototype_record_upload.html'" aria-label="Record or Upload">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+        </button>
+        </div>
+    <a href="notebuddy_prototype_summary_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        Summaries
+    </a>
+    <a href="notebuddy_prototype_folder_view.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+        </svg>
+        Folders
+    </a>
+</nav>
+        
+    </div>
+
+    <!-- Authentication Check -->
+    <script src="auth-check.js"></script>
+    
+    <!-- Mock Authentication for Local Development -->
+    <script src="mock-auth.js"></script>
+    
+    <!-- Zoom API Integration -->
+    <script src="zoom-config.js"></script>
+    
+    <script>
+        // Global authentication guard - prevents redirects during logout
+        window.authGuard = {
+            isLoggingOut: false,
+            preventRedirects: false,
+            setLoggingOut: function() {
+                this.isLoggingOut = true;
+                this.preventRedirects = true;
+                console.log('🎯 Auth guard: Logout mode activated, preventing all redirects');
+            },
+            reset: function() {
+                this.isLoggingOut = false;
+                this.preventRedirects = false;
+                console.log('🎯 Auth guard: Reset to normal mode');
+            }
+        };
+
+        // Chatbot functionality
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                addUserMessage(message);
+                input.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate bot response after delay
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addBotResponse(message);
+                }, 1500);
+            }
+        }
+
+        function sendQuickMessage(message) {
+            addUserMessage(message);
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                hideTypingIndicator();
+                addBotResponse(message);
+            }, 1500);
+        }
+
+        function addUserMessage(message) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <div class="user-avatar">U</div>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <p>${message}</p>
+                    </div>
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addBotResponse(userMessage) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const response = getBotResponse(userMessage);
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <div class="bot-avatar">NB</div>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <p>${response}</p>
+                    </div>
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function getBotResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            if (message.includes('record') || message.includes('meeting')) {
+                return "I can help you record a meeting! Click the microphone button in the bottom navigation or use the Record quick action above. You can also upload an existing audio file.";
+            } else if (message.includes('summary') || message.includes('summaries')) {
+                return "To view your meeting summaries, click the 'Summaries' tab in the bottom navigation. I can help you find specific meetings or answer questions about your past discussions.";
+            } else if (message.includes('schedule') || message.includes('calendar')) {
+                return "You can schedule meetings by clicking the 'Calendar' tab in the bottom navigation. I can help you plan your day or find available time slots.";
+            } else if (message.includes('task') || message.includes('todo') || message.includes('folder')) {
+                return "To manage your tasks, clients, and properties, click the 'Folders' tab in the bottom navigation. I can help you organize action items from your meetings.";
+            } else if (message.includes('zoom') || message.includes('bot')) {
+                return "🤖 Zoom Bot features are available! I can join Zoom meetings as a bot to record, transcribe, and take notes automatically. Connect your Zoom account in Settings to enable this feature.";
+            } else if (message.includes('join meeting') || message.includes('bot join')) {
+                return "To have me join a Zoom meeting as a bot, first connect your Zoom account in Settings, then I can automatically join meetings and provide real-time transcription and notes.";
+            } else if (message.includes('help') || message.includes('what can you do')) {
+                return "I'm NoteBuddy AI, your intelligent meeting assistant! I can help you record meetings, view summaries, manage tasks, clients, and properties through the Folders section, schedule events, and even join Zoom meetings as a bot for automatic transcription. Just ask me anything about your meetings or use the quick action buttons above.";
+            } else if (message.includes('hello') || message.includes('hi')) {
+                return "Hello! I'm here to help you with all your meeting needs. What would you like to do today?";
+            } else {
+                return "I understand you're asking about: \"" + userMessage + "\". I'm here to help with meeting-related tasks like recording, summarizing, scheduling, task management, and even joining Zoom meetings as a bot. Feel free to ask me anything specific!";
+            }
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <div class="bot-avatar">NB</div>
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Add event listener for Enter key
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Dark mode detection and application
+        function applyDarkMode() {
+            // Check if dark mode is enabled in localStorage (using same key as settings page)
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const isDarkMode = savedTheme === 'dark';
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyDarkMode);
+
+        // Listen for theme changes from settings
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                applyDarkMode();
+            }
+        });
+
+        // Initialize chatbot and dark mode
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log(' NoteBuddy AI Chatbot initialized');
+            applyDarkMode();
+        });
+    </script>
+</body>
+</html>
